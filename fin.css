@@ -1,0 +1,319 @@
+/* ============================================================================
+   ENIGMA — SECTION 07 · THE FINAL SCENE
+   ---------------------------------------------------------------------------
+   Not a footer: the closing shot. Three depth layers under one scroll-driven
+   timeline —
+
+     BACKGROUND   the supplied red atmosphere (BACKGROUNF IMG.jpg), sunk
+                  almost to black
+     MIDGROUND    the supplied ENIGMA typography asset (TITTLE.jpg) through
+                  the same red-ink separation filter Section 01 uses,
+                  monumental, rising physically from below the frame
+     FOREGROUND   the editorial navigation, the final call, the small print
+
+   Timeline (P = scroll progress into the section, and nothing else):
+     .00-.20  the room deepens to black
+     .08-.35  the red atmosphere breathes in
+     .20-.60  ENIGMA rises — clipped, not faded
+     .45-.62  the closing editorial line
+     .60-.78  navigation, one link at a time
+     .78-1.0  socials, then the small print
+
+   Scrolling back up rewinds the scene. Idle is still. And because every
+   section of this site is a pure function of scroll, the final call's
+   return-to-top literally rewinds the whole film.
+   ========================================================================== */
+
+.fin{
+  --fu2: clamp(0.40px, min(0.06510417vw, 0.09765625vh), 2.0px);
+  --red: #ce010f;
+
+  position:relative;
+  width:100%;
+  height:220vh;                 /* the reveal rides ~120vh of scroll */
+  background:#000;
+  -webkit-user-select:none; user-select:none;
+}
+.fin__pin{
+  position:sticky;
+  top:0;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+/* ---------------------------------------------------------------------------
+   BACKGROUND — the supplied atmosphere, almost gone into black
+   --------------------------------------------------------------------------*/
+.fin__atmo{
+  position:absolute;
+  left:-4%; top:-4%; width:108%; height:108%;
+  opacity:calc(var(--e-atmo,0) * .62);
+  transform:translate3d(calc(var(--pxa,0) * 1px), calc(var(--pya,0) * 1px), 0)
+            scale(1.04);
+  z-index:1;
+}
+.fin__atmo img{
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:18% 45%;              /* the red side of the supplied plate */
+  filter:brightness(.6) saturate(1.15);
+  -webkit-user-drag:none;
+}
+/* sink it toward black at the edges so it reads as light, not image */
+.fin__atmo::after{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(72% 64% at 38% 62%, rgba(0,0,0,0) 0%, rgba(0,0,0,.72) 62%, #000 92%),
+    linear-gradient(to top, #000 0%, rgba(0,0,0,.25) 26%, rgba(0,0,0,0) 55%);
+}
+
+/* ---------------------------------------------------------------------------
+   MIDGROUND — the monumental ENIGMA, rising from below the frame
+   --------------------------------------------------------------------------*/
+.fin__markwrap{
+  position:absolute;
+  left:50%; bottom:calc(64 * var(--fu2));
+  width:calc(1500 * var(--fu2));
+  transform:translateX(-50%);
+  overflow:hidden;                       /* the mask the letters rise through */
+  z-index:2;
+  pointer-events:none;
+}
+.fin__mark{
+  display:block;
+  width:100%;
+  transform:translate3d(calc(var(--pxm,0) * 1px),
+                        calc((1 - var(--e-mark,0)) * 96% + var(--pym,0) * 1px), 0)
+            scale(calc(.965 + .035 * var(--e-mark,0)));
+  transform-origin:50% 100%;
+}
+.fin__mark img{
+  display:block;
+  width:100%; height:auto;
+  filter:url(#enigma-ink);               /* the same ink as Section 01 */
+  -webkit-user-drag:none;
+}
+
+/* ---------------------------------------------------------------------------
+   FOREGROUND
+   --------------------------------------------------------------------------*/
+.fin__fg{
+  position:absolute; inset:0;
+  z-index:3;
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color:#fff;
+  transform:translate3d(calc(var(--pxf,0) * 1px), calc(var(--pyf,0) * 1px), 0);
+}
+
+/* the end-slate line, top left */
+.fin__slate{
+  position:absolute;
+  left:calc(64 * var(--fu2));
+  top:calc(150 * var(--fu2));
+  opacity:var(--e-copy,0);
+  transform:translateY(calc((1 - var(--e-copy,0)) * 14 * var(--fu2)));
+}
+.fin__eyebrow{
+  display:flex; align-items:center; gap:.7em;
+  font-stretch:100%;
+  font-weight:420;
+  font-size:calc(13.5 * var(--fu2));
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+.fin__eyebrow::after{
+  content:""; flex:0 0 calc(34 * var(--fu2));
+  height:1px; background:rgba(206,1,15,.8);
+}
+.fin__line{
+  margin-top:calc(26 * var(--fu2));
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(21 * var(--fu2));
+  line-height:1.6;
+  color:rgba(255,255,255,.82);
+  max-width:calc(330 * var(--fu2));
+}
+
+/* the final call — one strong interactive element */
+.fin__call{
+  position:absolute;
+  left:calc(64 * var(--fu2));
+  top:calc(380 * var(--fu2));
+  display:inline-flex; align-items:baseline; gap:calc(18 * var(--fu2));
+  font-stretch:81%;
+  font-weight:560;
+  font-size:calc(44 * var(--fu2));
+  letter-spacing:.015em;
+  text-transform:uppercase;
+  color:#fff;
+  text-decoration:none;
+  opacity:var(--e-copy,0);
+  transform:translate3d(calc(var(--mgx,0) * 1px), calc(var(--mgy,0) * 1px), 0);
+  transition:letter-spacing .5s cubic-bezier(.22,.61,.36,1);
+}
+.fin__call i{
+  font-style:normal;
+  color:var(--red);
+  transition:transform .5s cubic-bezier(.22,.61,.36,1);
+}
+.fin__call::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:calc(-12 * var(--fu2));
+  height:1px;
+  background:var(--red);
+  transform:scaleX(0);
+  transform-origin:left center;
+  transition:transform .6s cubic-bezier(.22,.61,.36,1);
+}
+.fin__call:hover{ letter-spacing:.05em; }
+.fin__call:hover::after{ transform:scaleX(1); }
+.fin__call:hover i{ transform:translateX(calc(10 * var(--fu2))); }
+
+/* navigation — a right-hand editorial column, not a grid */
+.fin__nav{
+  position:absolute;
+  right:calc(72 * var(--fu2));
+  top:calc(150 * var(--fu2));
+  display:flex; flex-direction:column; align-items:flex-end;
+  gap:calc(20 * var(--fu2));
+}
+.fin__nav a{
+  position:relative;
+  display:inline-flex; align-items:center; gap:calc(12 * var(--fu2));
+  font-stretch:81%;
+  font-weight:440;
+  font-size:calc(21 * var(--fu2));
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.85);
+  text-decoration:none;
+  opacity:var(--lk,0);
+  transform:translate3d(calc(var(--mgx,0) * 1px),
+            calc((1 - var(--lk,0)) * 10 * var(--fu2) + var(--mgy,0) * 1px), 0);
+  transition:color .35s ease, letter-spacing .45s cubic-bezier(.22,.61,.36,1);
+}
+.fin__nav a::before{
+  content:"\2192";                       /* the small arrow that appears */
+  font-size:calc(15 * var(--fu2));
+  color:var(--red);
+  opacity:0;
+  transform:translateX(calc(-8 * var(--fu2)));
+  transition:opacity .35s ease, transform .45s cubic-bezier(.22,.61,.36,1);
+}
+.fin__nav a::after{
+  content:"";
+  position:absolute;
+  left:calc(27 * var(--fu2)); right:0; bottom:calc(-6 * var(--fu2));
+  height:1px; background:var(--red);
+  transform:scaleX(0);
+  transform-origin:right center;
+  transition:transform .5s cubic-bezier(.22,.61,.36,1);
+}
+.fin__nav a:hover{ color:#fff; letter-spacing:.16em; }
+.fin__nav a:hover::before{ opacity:1; transform:translateX(0); }
+.fin__nav a:hover::after{ transform:scaleX(1); }
+.fin__nav.is-hovering a:not(:hover){ color:rgba(255,255,255,.4); }
+
+/* socials — labels with the red pip, lower left */
+.fin__soc{
+  position:absolute;
+  left:calc(64 * var(--fu2));
+  bottom:calc(120 * var(--fu2));
+  display:flex; gap:calc(44 * var(--fu2));
+  opacity:var(--e-soc,0);
+  transform:translateY(calc((1 - var(--e-soc,0)) * 10 * var(--fu2)));
+}
+.fin__soc a{
+  position:relative;
+  font-stretch:100%;
+  font-weight:400;
+  font-size:calc(14 * var(--fu2));
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+  text-decoration:none;
+  transition:color .35s ease, transform .35s ease;
+}
+.fin__soc a::before{
+  content:"";
+  position:absolute;
+  left:calc(-13 * var(--fu2)); top:calc(5 * var(--fu2));
+  width:calc(5 * var(--fu2)); height:calc(5 * var(--fu2));
+  border-radius:50%;
+  background:var(--red);
+  opacity:0;
+  transform:scale(.4);
+  transition:opacity .3s ease, transform .3s ease;
+}
+.fin__soc a:hover{ color:#fff; transform:translateX(calc(4 * var(--fu2))); }
+.fin__soc a:hover::before{ opacity:1; transform:scale(1); }
+
+/* back to top — minimal, lower right */
+.fin__top{
+  position:absolute;
+  right:calc(72 * var(--fu2));
+  bottom:calc(120 * var(--fu2));
+  display:inline-flex; align-items:center; gap:calc(12 * var(--fu2));
+  font-stretch:100%;
+  font-weight:420;
+  font-size:calc(13.5 * var(--fu2));
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+  opacity:var(--e-soc,0);
+  transform:translate3d(calc(var(--mgx,0) * 1px), calc(var(--mgy,0) * 1px), 0);
+  transition:color .35s ease;
+}
+.fin__top i{
+  font-style:normal;
+  transition:transform .4s cubic-bezier(.22,.61,.36,1);
+}
+.fin__top:hover{ color:#fff; }
+.fin__top:hover i{ transform:translateY(calc(-4 * var(--fu2))); }
+
+/* the small print — the very last line of the magazine */
+.fin__base{
+  position:absolute;
+  left:calc(64 * var(--fu2)); right:calc(72 * var(--fu2));
+  bottom:calc(38 * var(--fu2));
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-stretch:81%;
+  font-weight:400;
+  font-size:calc(12.5 * var(--fu2));
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.42);
+  opacity:var(--e-base,0);
+}
+.fin__base b{ font-weight:400; color:rgba(255,255,255,.62); }
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — the final state, standing still
+   --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion:reduce){
+  .fin *{ transition:none !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------------------------*/
+@media (max-width:1024px){
+  .fin{ --fu2:clamp(0.40px, min(0.08vw, 0.114vh), 2.0px); }
+}
+@media (max-aspect-ratio:3/4), (max-width:700px){
+  .fin{ --fu2:clamp(0.34px, min(0.15vw, 0.09vh), 2.0px); }
+  .fin__nav{ right:auto; left:calc(64 * var(--fu2)); top:calc(560 * var(--fu2));
+             align-items:flex-start; }
+  .fin__nav a::after{ transform-origin:left center; }
+  .fin__markwrap{ width:calc(100% - 40 * var(--fu2)); bottom:calc(160 * var(--fu2)); }
+  .fin__base{ flex-wrap:wrap; gap:calc(12 * var(--fu2)); }
+  .fin__soc{ bottom:calc(190 * var(--fu2)); }
+  .fin__top{ bottom:calc(190 * var(--fu2)); }
+}

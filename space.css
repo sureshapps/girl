@@ -1,0 +1,276 @@
+/* ============================================================================
+   ENIGMA — SPATIAL SECTIONS
+   Section 02 · the archive room
+   ---------------------------------------------------------------------------
+   A rectangular VOLUME of screens rotating about a
+   vertical axis set D in front of the camera, not a ring at a fixed radius.
+
+     camera (origin) ......... axis at z = -D ......... back of the volume
+                    <--------- D --------->
+
+   A panel's radius from that axis varies from ~450 to ~1600, so its nearest
+   pass renders anywhere from 0.6x to 1.44x and its farthest at 0.30x. That
+   5:1 spread — not rotation — is what reads as depth.
+
+   PANEL FACING: each panel counter-rotates the room spin, so it broadly faces
+   the camera and only its own yaw (+/-20deg, +/-30deg deep) turns it away.
+   The counter-rotation rides a single inherited --spin, so one variable write
+   per frame drives every panel.
+
+   3D INTEGRITY: opacity/filter collapses transform-style to flat, so nothing
+   between .space__room and .pan is ever faded. Depth, reveal and exit all
+   fold into each panel's own --o.
+   ========================================================================== */
+
+.space{
+  /* 1 reference pixel of the 1200 x 753 design frame */
+  --au: clamp(0.42px, min(0.08333333vw, 0.13280212vh), 2.1px);
+  --persp: calc(1150 * var(--au));   /* camera focal depth   */
+  --axis : calc(1250 * var(--au));   /* distance to the axis */
+
+  position:relative;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  background:#000;
+  isolation:isolate;
+  cursor:grab;
+  touch-action:pan-y;
+  -webkit-user-select:none; user-select:none;
+}
+.space.is-dragging{ cursor:grabbing; }
+
+/* ---------------------------------------------------------------------------
+   THE IMPLIED ROOM
+   No walls are drawn. The boundary is pure tonal separation: the deep centre
+   sits a few values above pure black, the edges fall to it. That reads as a
+   large plane behind everything without ever becoming a visible surface.
+   --------------------------------------------------------------------------*/
+.space__wall{
+  position:absolute;
+  left:-12%; top:-12%; width:124%; height:124%;
+  background:
+    radial-gradient(58% 52% at 50% 46%, #0c0c0f 0%, #070708 42%, #000 78%);
+  transform:translate3d(var(--wall-x,0px),var(--wall-y,0px),0) scale(var(--wall-s,1));
+  z-index:0;
+  opacity:var(--enter,0);
+}
+/* the faintest suggestion of a ground plane, so the volume has a bottom */
+.space__wall::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:0; height:38%;
+  background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.75) 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE + ROOM
+   --------------------------------------------------------------------------*/
+.space__scene{
+  position:absolute; inset:0;
+  perspective:var(--persp);
+  /* camera slightly below centre, looking a little upward and off-axis */
+  perspective-origin:var(--cam-x,47%) var(--cam-y,58%);
+  z-index:1;
+  opacity:var(--enter,0);
+}
+.space__room{
+  position:absolute;
+  left:50%; top:50%;
+  width:0; height:0;
+  transform-style:preserve-3d;
+  transform:
+    rotateX(var(--pitch,-3.5deg))
+    translateZ(calc(var(--axis) * -1 + var(--dolly,0) * var(--au)))
+    rotateY(calc(var(--spin,0) * 1deg));
+}
+
+/* ---------------------------------------------------------------------------
+   PANEL — a physical screen suspended in the volume
+   --x --y --z local position · --yaw --tilt its own facing · --w width
+   --------------------------------------------------------------------------*/
+.pan{
+  position:absolute;
+  left:0; top:0;
+  width:calc(var(--w) * var(--au));
+  margin-left:calc(var(--w) * var(--au) / -2);
+  transform-style:preserve-3d;
+  transform:
+    translate3d(calc(var(--x) * var(--au)),
+                calc(var(--y) * var(--au)),
+                calc(var(--z) * var(--au)))
+    rotateY(calc(var(--spin,0) * -1deg + var(--yaw)))
+    rotateX(var(--tilt,0deg))
+    translateY(-50%);
+  opacity:var(--o,1);
+}
+
+/* the slab behind the face: pushed back by the panel's thickness, so a yawed
+   screen shows a real side edge instead of reading as a pasted cut-out       */
+.pan__slab{
+  position:absolute;
+  left:calc(-1 * var(--th,3) * var(--au));
+  right:calc(-1 * var(--th,3) * var(--au));
+  top:calc(-1 * var(--th,3) * var(--au));
+  bottom:calc(-1 * var(--th,3) * var(--au));
+  transform:translateZ(calc(var(--th,3) * var(--au) * -1));
+  background:#08080a;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+  border-radius:calc(2 * var(--au));
+}
+
+/* the soft darkness a near screen throws into the space behind it.
+   A gradient, not a blur filter — free to composite.                        */
+.pan__cast{
+  position:absolute;
+  left:-42%; right:-42%; top:-30%; bottom:-52%;
+  transform:translateZ(calc(var(--th,3) * var(--au) * -9));
+  background:radial-gradient(50% 50% at 50% 56%,
+             rgba(0,0,0,.85) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,0) 72%);
+  pointer-events:none;
+}
+
+.pan__frame{
+  position:relative;
+  display:block;
+  width:100%;
+  aspect-ratio:var(--ar,4/3);
+  overflow:hidden;
+  border-radius:calc(2 * var(--au));
+  background:#0a0a0a;
+  /* a rim, not a glow: catches the implied light on the leading edge */
+  box-shadow:0 0 0 1px rgba(255,255,255,.09),
+             inset 0 1px 0 0 rgba(255,255,255,.045);
+  transition:transform .6s cubic-bezier(.22,.61,.36,1),
+             box-shadow .5s cubic-bezier(.22,.61,.36,1);
+}
+.pan__frame img{
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:var(--op,50% 42%);
+  display:block;
+  /* the archive plates are dark by nature; lift them so the room glows */
+  filter:brightness(1.2) contrast(1.03);
+  -webkit-user-drag:none;
+}
+/* depth veil — what makes a far screen sink into the room rather than fade */
+.pan__veil{
+  position:absolute; inset:0;
+  display:block;
+  background:#000;
+  opacity:var(--v,.5);
+  pointer-events:none;
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1);
+}
+
+/* label lives inside the panel, so it sits in the panel's plane and turns
+   with it in 3D                                                             */
+.pan__label{
+  position:absolute;
+  left:calc(2 * var(--au));
+  top:calc(100% + 7 * var(--au));
+  width:150%;
+  text-align:left;
+  line-height:1.3;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.pan__label b{
+  display:block;
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  font-stretch:100%;
+  font-weight:520;
+  font-size:calc(10.5 * var(--au));
+  letter-spacing:.004em;
+  color:#fff;
+}
+.pan__label span{
+  display:block;
+  font-family:"Archivo","Arial Narrow",Arial,sans-serif;
+  font-stretch:81%;
+  font-weight:400;
+  font-size:calc(9.5 * var(--au));
+  letter-spacing:.085em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.42);
+}
+
+/* deep screens lose their rim and their label — they are only presence */
+.pan[data-depth="far"] .pan__frame{
+  box-shadow:0 0 0 1px rgba(255,255,255,.03);
+  filter:blur(calc(.9 * var(--au)));
+}
+.pan[data-depth="far"] .pan__label,
+.pan[data-depth="far"] .pan__cast{ display:none; }
+.pan[data-depth="mid"] .pan__cast{ opacity:.5; }
+
+/* ---------------------------------------------------------------------------
+   HOVER — the screen leans out of the wall. Nothing glows.
+   --------------------------------------------------------------------------*/
+.pan.is-near:hover .pan__frame{
+  transform:translateZ(calc(11 * var(--au))) scale(1.02);
+  box-shadow:0 0 0 1px rgba(255,255,255,.19),
+             inset 0 1px 0 0 rgba(255,255,255,.07);
+}
+.pan.is-near:hover .pan__veil{ opacity:calc(var(--v) * .3); }
+.pan.is-near{ cursor:pointer; }
+.space.is-hovering .pan.is-near:not(:hover){ opacity:calc(var(--o) * .74); }
+
+/* ---------------------------------------------------------------------------
+   SECTION CHROME — almost none
+   --------------------------------------------------------------------------*/
+.space__ui{
+  position:absolute; inset:0;
+  pointer-events:none;
+  z-index:5;
+  opacity:0;
+  font-family:"Archivo","Arial Narrow",Arial,sans-serif;
+  font-stretch:81%;
+  color:#fff;
+}
+.space__eyebrow,.space__count{
+  position:absolute;
+  top:calc(30 * var(--au));
+  font-size:calc(11 * var(--au));
+  font-weight:400;
+  letter-spacing:.095em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.58);
+}
+.space__eyebrow{ left:calc(34 * var(--au)); }
+.space__count  { right:calc(34 * var(--au)); }
+.space__count b{ color:#fff; font-weight:560; font-variant-numeric:tabular-nums; }
+
+.space__hint{
+  position:absolute;
+  left:50%; bottom:calc(26 * var(--au));
+  transform:translateX(-50%);
+  font-size:calc(9.5 * var(--au));
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.26);
+  transition:opacity .7s ease;
+}
+.space.is-engaged .space__hint{ opacity:0; }
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — the volume holds still, fully lit, still explorable
+   --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion:reduce){
+  .space__scene,.space__ui,.space__wall{ opacity:1; }
+  .pan__frame,.pan__veil{ transition:none; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE — the volume stays a volume, it only gets tighter
+   --------------------------------------------------------------------------*/
+@media (max-width:1024px){
+  .space{ --au:clamp(0.42px, min(0.1vw, 0.146vh), 2.1px); }
+}
+@media (max-width:640px), (max-aspect-ratio:3/4){
+  .space{ --au:clamp(0.40px, min(0.21vw, 0.112vh), 2.1px); }
+  .pan__label b   { font-size:calc(13 * var(--au)); }
+  .pan__label span{ font-size:calc(12 * var(--au)); }
+  .space__hint{ display:none; }
+}

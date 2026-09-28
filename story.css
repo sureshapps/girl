@@ -1,0 +1,449 @@
+/* ============================================================================
+   ENIGMA — SECTION 06 · BEHIND THE SCENES (THE STORY)
+   ---------------------------------------------------------------------------
+   Composition reverse-measured from "section 6 refrence.jpg" (1536 x 1024):
+
+     four frames  lefts 279 / 502 / 730 / 951 · ~216 x 373 · row centre
+                  (719.5, 488.5) -> stage anchor 46.85% / 47.7%
+     frame 01 carries the red border; numbers sit inside each top-left
+     caption row  red "01" at x 281 · text at 328 · progress line 556->1097
+                  with the travelling dot · y ~724
+     left rail    "06 —", BEHIND / THE SCENES, copy, red circle -> at (58,687)
+     red panel    from x ~1165 to the edge: NEXT DESTINATION / PARIS /
+                  28.02.2025 / PALAIS DE TOKYO / GET TICKETS / socials / play
+
+   (The reference repeats the site header; in the continuous page the header
+   lives in Section 01, so it is not duplicated here.)
+
+   INTERACTION: the row is the resting truth. The active frame is pulled
+   forward off the row toward the camera; on scroll it settles back into its
+   slot — left and back, darker, rotated away — while the next frame comes
+   forward from its own slot on the right. Continuous, reversible, still
+   when idle.
+
+   3D INTEGRITY: every 3D participant carries a real box, no z-index inside
+   the stage, depth folds into leaf opacity/veils only.
+   ========================================================================== */
+
+.story{
+  /* 1 reference pixel of the 1536 x 1024 design frame */
+  --su: clamp(0.40px, min(0.06510417vw, 0.09765625vh), 2.0px);
+  --red: #ce010f;
+
+  position:relative;
+  width:100%;
+  height:340vh;                /* three hand-offs ride the scroll */
+  background:#000;
+  touch-action:pan-y;
+  -webkit-user-select:none; user-select:none;
+}
+.story__pin{
+  position:sticky;
+  top:0;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+/* ---------------------------------------------------------------------------
+   ROOM
+   --------------------------------------------------------------------------*/
+.story__wall{
+  position:absolute;
+  left:-8%; top:-8%; width:116%; height:116%;
+  background:radial-gradient(50% 52% at 44% 46%, #0a090a 0%, #050405 48%, #000 80%);
+  z-index:0;
+  opacity:0;
+  transition:opacity .6s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   LEFT RAIL — 06 · BEHIND THE SCENES · copy · the red step button
+   --------------------------------------------------------------------------*/
+.story__rail{
+  position:absolute;
+  left:calc(37 * var(--su));
+  top:calc(228 * var(--su));
+  z-index:6;
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color:#fff;
+  opacity:0;
+  transform:translateY(calc(10 * var(--su)));
+  transition:opacity .55s cubic-bezier(.22,.61,.36,1),
+             transform .55s cubic-bezier(.22,.61,.36,1);
+}
+.story__num{
+  display:flex; align-items:center; gap:.5em;
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(40 * var(--su));
+}
+.story__num::after{
+  content:""; flex:0 0 calc(30 * var(--su));
+  height:1px; background:rgba(255,255,255,.6);
+}
+.story__title{
+  margin-top:calc(64 * var(--su));
+  font-stretch:62%;                 /* the reference cut is ultra-condensed */
+  font-weight:640;
+  font-size:calc(54 * var(--su));   /* sized to clear frame 01: the
+                                       reference cut compresses beyond
+                                       Archivo's 62% floor            */
+  line-height:1.26;
+  text-transform:uppercase;
+}
+.story__body{
+  margin-top:calc(46 * var(--su));
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(17.5 * var(--su));
+  line-height:1.6;
+  color:rgba(255,255,255,.78);
+  max-width:calc(190 * var(--su));
+}
+.story__go{
+  margin-top:calc(56 * var(--su));
+  width:calc(52 * var(--su)); height:calc(52 * var(--su));
+  border:1px solid rgba(206,1,15,.9);
+  border-radius:50%;
+  display:grid; place-items:center;
+  color:#fff;
+  font-size:calc(20 * var(--su));
+  transition:background .35s ease, transform .35s ease;
+}
+.story__go:hover{ background:rgba(206,1,15,.16); transform:scale(1.05); }
+
+/* ---------------------------------------------------------------------------
+   SCENE — the four frames in one 3D room
+   --------------------------------------------------------------------------*/
+.story__scene{
+  position:absolute;
+  left:0; right:calc(371 * var(--su));   /* the red panel owns the rest */
+  top:0; bottom:0;
+  perspective:calc(1600 * var(--su));
+  perspective-origin:calc(61.7% + var(--px,0%)) calc(47.7% + var(--py,0%));
+  z-index:2;
+  opacity:0;
+  transition:opacity .65s ease;
+}
+.story.is-lit .story__scene,
+.story.is-lit .story__wall,
+.story.is-lit .story__rail,
+.story.is-lit .story__cap,
+.story.is-lit .story__paris{ opacity:1; transform:none; }
+.story.is-lit .story__wall{ opacity:.95; }
+
+.story__stage{
+  position:absolute;
+  left:61.7%;                  /* row centre 719.5 of the 1165-wide zone */
+  top:47.7%;
+  width:0; height:0;
+  transform-style:preserve-3d;
+}
+.story__rig{
+  position:absolute; left:0; top:0;
+  width:0; height:0;
+  transform-style:preserve-3d;
+  transform:rotateY(var(--ox,0deg)) rotateX(var(--oy,0deg));
+}
+
+/* ---------------------------------------------------------------------------
+   A FRAME — one editorial photograph. JS writes its transform.
+   --------------------------------------------------------------------------*/
+.sfp{
+  position:absolute;
+  left:calc(-108 * var(--su)); top:calc(-186.5 * var(--su));
+  width:calc(216 * var(--su)); height:calc(373 * var(--su));
+  transform-style:preserve-3d;
+  opacity:var(--o,1);
+  will-change:transform;
+}
+.sfp__slab{
+  position:absolute; inset:0;
+  transform:translateZ(calc(-3 * var(--su)));
+  background:#070708;
+}
+.sfp__frame{
+  position:absolute; inset:0;
+  overflow:hidden;
+  background:#0a090a;
+  border:1px solid rgba(255,255,255,.22);
+  transition:border-color .45s ease,
+             transform .5s cubic-bezier(.22,.61,.36,1),
+             box-shadow .45s ease;
+}
+.sfp__frame img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:var(--op,50% 30%);
+  /* the backstage plates are near-black by nature; lift them into the room */
+  filter:brightness(1.24) contrast(1.04);
+  -webkit-user-drag:none;
+}
+.sfp__veil{
+  position:absolute; inset:0;
+  background:#000;
+  opacity:var(--v,.4);
+  pointer-events:none;
+  transition:opacity .3s linear;
+}
+/* placeholder grades — dropped the instant a real photograph loads */
+.sfp__wash{ position:absolute; inset:0; pointer-events:none; }
+.sfp[data-placeholder] img{ filter:grayscale(1) contrast(1.08) brightness(.95); }
+.sfp[data-placeholder] .sfp__wash{ background:rgba(8,8,9,.18); }
+
+.sfp__tag{
+  position:absolute;
+  left:calc(16 * var(--su)); top:calc(12 * var(--su));
+  font-family:"Archivo",Arial,sans-serif;
+  font-stretch:100%;
+  font-weight:420;
+  font-size:calc(22 * var(--su));
+  letter-spacing:.04em;
+  color:rgba(255,255,255,.85);
+  transition:color .4s ease;
+  pointer-events:none;
+}
+.sfp.is-active .sfp__frame{
+  border-color:rgba(206,1,15,.95);
+  box-shadow:0 0 0 1px rgba(206,1,15,.22),
+             0 calc(26 * var(--su)) calc(70 * var(--su)) rgba(0,0,0,.55);
+}
+.sfp.is-active .sfp__tag{ color:var(--red); }
+
+.sfp.is-live .sfp__frame{ cursor:pointer; }
+.sfp.is-live:hover .sfp__frame{
+  transform:translateZ(calc(12 * var(--su))) scale(1.015);
+}
+.sfp.is-live:hover .sfp__veil{ opacity:calc(var(--v) * .45); }
+.story.is-hovering .sfp.is-live:not(:hover){ opacity:calc(var(--o) * .82); }
+
+/* ---------------------------------------------------------------------------
+   CAPTION + PROGRESS — red number · line · travelling dot
+   --------------------------------------------------------------------------*/
+.story__cap{
+  position:absolute;
+  left:calc(281 * var(--su));
+  right:calc(400 * var(--su));
+  top:calc(712 * var(--su));
+  z-index:6;
+  display:flex; align-items:center; gap:calc(22 * var(--su));
+  font-family:"Archivo",Arial,sans-serif;
+  opacity:0;
+  transition:opacity .55s ease .15s;
+  pointer-events:none;
+}
+.story__capnum{
+  font-stretch:100%;
+  font-weight:460;
+  font-size:calc(20 * var(--su));
+  color:var(--red);
+}
+.story__captxt{
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(19 * var(--su));
+  color:rgba(255,255,255,.92);
+  white-space:nowrap;
+  transition:opacity .25s ease;
+}
+.story__cap.is-swapping .story__captxt{ opacity:0; }
+.story__line{
+  position:relative;
+  flex:1;
+  height:1px;
+  background:rgba(255,255,255,.28);
+  margin-left:calc(18 * var(--su));
+}
+.story__line i{
+  position:absolute;
+  top:calc(-3 * var(--su));
+  left:calc(var(--p,0) / 3 * 100%);
+  width:calc(7 * var(--su)); height:calc(7 * var(--su));
+  margin-left:calc(-3.5 * var(--su));
+  border-radius:50%;
+  background:#fff;
+}
+
+/* ---------------------------------------------------------------------------
+   THE RED PANEL — next destination: PARIS
+   --------------------------------------------------------------------------*/
+.story__paris{
+  position:absolute;
+  right:0; top:0; bottom:0;
+  width:calc(371 * var(--su));
+  z-index:5;
+  overflow:hidden;
+  background:
+    radial-gradient(70% 55% at 86% 62%, rgba(190,16,22,.55) 0%, rgba(70,6,10,.25) 52%, rgba(0,0,0,0) 78%),
+    linear-gradient(115deg, #160304 0%, #2a0508 46%, #3c060b 100%);
+  border-left:1px solid rgba(255,255,255,.08);
+  font-family:"Archivo",Arial,sans-serif;
+  color:#fff;
+  opacity:0;
+  transition:opacity .7s ease .1s;
+}
+/* the destination image slot (drop story/paris.jpg in) — red-graded */
+.story__pimg{
+  position:absolute;
+  right:calc(-40 * var(--su)); top:12%; bottom:0;
+  width:calc(300 * var(--su));
+  transform:translate3d(calc(var(--tx,0) * 1px), 0, 0);
+}
+.story__pimg img{
+  width:100%; height:100%;
+  object-fit:cover; object-position:50% 20%;
+  filter:grayscale(1) brightness(.75) contrast(1.15);
+  -webkit-user-drag:none;
+}
+.story__pimg::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(200deg, rgba(200,14,20,.8) 0%, rgba(110,6,12,.55) 48%, rgba(20,1,2,.7) 100%);
+  mix-blend-mode:screen;
+}
+.story__pbody{
+  position:absolute;
+  left:calc(35 * var(--su));
+  top:calc(215 * var(--su));
+  right:calc(30 * var(--su));
+}
+.story__plabel{
+  display:inline-block;
+  padding-bottom:calc(7 * var(--su));
+  border-bottom:1px solid rgba(255,255,255,.65);
+  font-stretch:100%;
+  font-weight:420;
+  font-size:calc(14.5 * var(--su));
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.92);
+}
+.story__pcity{
+  margin-top:calc(22 * var(--su));
+  font-stretch:81%;
+  font-weight:680;
+  font-size:calc(84 * var(--su));
+  line-height:.95;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  color:var(--red);
+  text-shadow:0 0 calc(40 * var(--su)) rgba(206,1,15,.35);
+}
+/* the comp-card grid — placeholders until the real card is supplied */
+.story__mgrid{
+  margin-top:calc(26 * var(--su));
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:calc(12 * var(--su)) calc(24 * var(--su));
+}
+.story__mgrid > div{
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding-bottom:calc(6 * var(--su));
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.story__mgrid dt{
+  font-stretch:100%;
+  font-weight:400;
+  font-size:calc(11.5 * var(--su));
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+.story__mgrid dd{
+  margin:0;
+  font-stretch:100%;
+  font-weight:340;
+  font-size:calc(14 * var(--su));
+  color:rgba(255,255,255,.92);
+}
+
+.story__pdate{
+  margin-top:calc(24 * var(--su));
+  font-stretch:100%;
+  font-weight:340;
+  font-size:calc(18 * var(--su));
+  letter-spacing:.03em;
+}
+.story__pvenue{
+  margin-top:calc(8 * var(--su));
+  font-stretch:100%;
+  font-weight:420;
+  font-size:calc(17 * var(--su));
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.story__ptix{
+  display:inline-flex; align-items:center; gap:calc(12 * var(--su));
+  margin-top:calc(26 * var(--su));
+  padding-bottom:calc(8 * var(--su));
+  border-bottom:1px solid rgba(255,255,255,.6);
+  font-stretch:100%;
+  font-weight:440;
+  font-size:calc(15.5 * var(--su));
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#fff;
+  text-decoration:none;
+  transition:border-color .35s ease;
+}
+.story__ptix:hover{ border-color:var(--red); }
+.story__ptix i{ font-style:normal; color:#fff; }
+.story__psoc{
+  position:absolute;
+  left:calc(35 * var(--su));
+  bottom:calc(295 * var(--su));
+  display:flex; align-items:center; gap:calc(38 * var(--su));
+}
+.story__psoc a{ color:rgba(255,255,255,.8); transition:color .3s ease; }
+.story__psoc a:hover{ color:#fff; }
+.story__psoc svg{ width:calc(20 * var(--su)); height:calc(20 * var(--su)); display:block; }
+.story__play{
+  position:absolute;
+  right:calc(48 * var(--su));
+  bottom:calc(272 * var(--su));
+  width:calc(62 * var(--su)); height:calc(62 * var(--su));
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:50%;
+  display:grid; place-items:center;
+  color:#fff;
+  transition:background .35s ease;
+}
+.story__play:hover{ background:rgba(255,255,255,.12); }
+.story__play svg{ width:calc(16 * var(--su)); height:calc(16 * var(--su)); margin-left:calc(3 * var(--su)); }
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION
+   --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion:reduce){
+  .story *, .story *::before, .story *::after{ transition:none !important; }
+  .story__scene,.story__wall,.story__rail,.story__cap,.story__paris{ opacity:1; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------------------------*/
+@media (max-width:1024px){
+  .story{ --su:clamp(0.40px, min(0.075vw, 0.104vh), 2.0px); }
+}
+@media (max-aspect-ratio:3/4), (max-width:700px){
+  .story{ --su:clamp(0.30px, min(0.12vw, 0.075vh), 2.0px); }
+  .story__paris{
+    left:0; right:0; top:auto; bottom:0;
+    width:auto; height:calc(300 * var(--su));
+    border-left:0; border-top:1px solid rgba(255,255,255,.08);
+  }
+  .story__pbody{ top:calc(40 * var(--su)); }
+  .story__pcity{ font-size:calc(84 * var(--su)); }
+  .story__psoc{ bottom:calc(30 * var(--su)); }
+  .story__play{ bottom:calc(30 * var(--su)); }
+  .story__scene{ right:0; bottom:calc(300 * var(--su)); }
+  .story__stage{ left:50%; top:44%; }
+  .story__scene{ perspective-origin:calc(50% + var(--px,0%)) 44%; }
+  .story__rail{ top:calc(60 * var(--su)); }
+  .story__body{ display:none; }
+  .story__cap{ right:calc(60 * var(--su)); }
+}

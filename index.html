@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" data-state="preload">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ENIGMA — Fashion Model</title>
+<meta name="description" content="ENIGMA — international fashion model. Editorial, beauty, campaign and runway.">
+
+<link rel="preload" as="font" type="font/woff2" href="fonts/archivo-var.woff2" crossorigin>
+
+<link rel="preload" as="image" href="BACKGROUNF%20IMG.jpg">
+<link rel="preload" as="image" href="GIRL%20IMAGE.jpg">
+<link rel="preload" as="image" href="TITTLE.jpg">
+
+<link rel="stylesheet" href="hero.css">
+<link rel="stylesheet" href="space.css">
+<link rel="stylesheet" href="folio.css">
+<link rel="stylesheet" href="looks.css">
+<link rel="stylesheet" href="behind.css">
+<link rel="stylesheet" href="story.css">
+<link rel="stylesheet" href="fin.css">
+</head>
+<body>
+
+<!-- ===================================================================
+     Colour-separation filter for the supplied ENIGMA typography asset.
+     TITTLE.jpg is flat red (220,2,1) on pure black. The matrix maps the
+     source RED channel to alpha and paints the exact reference ink
+     rgb(206,1,15) — so the supplied asset composites over the photograph
+     with no black box and no halo. No new artwork is generated.
+     =================================================================== -->
+<svg class="u-hidden" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="enigma-ink" color-interpolation-filters="sRGB"
+          x="0" y="0" width="100%" height="100%">
+    <feColorMatrix type="matrix" values="
+        0     0 0 0 0.8078
+        0     0 0 0 0.0039
+        0     0 0 0 0.0588
+        1.30  0 0 0 -0.130"/>
+  </filter>
+</svg>
+
+<main>
+<section class="hero" id="hero" aria-label="ENIGMA — fashion model">
+
+  <!-- FRAME 01 — colour atmosphere ---------------------------------- -->
+  <div class="layer layer--bg" data-px="bg">
+    <div class="layer__in" data-in="bg">
+      <img src="BACKGROUNF%20IMG.jpg" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+    </div>
+  </div>
+
+  <!-- FRAME 02/03 — the portrait ------------------------------------ -->
+  <div class="layer layer--girl" data-px="girl">
+    <div class="layer__in" data-in="girl">
+      <div class="girl__frame">
+        <img class="girl__img girl__img--soft" src="GIRL%20IMAGE.jpg" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+        <img class="girl__img girl__img--sharp" src="GIRL%20IMAGE.jpg"
+             alt="Fashion portrait — model in a wide-brimmed red hat and black turtleneck."
+             decoding="async" fetchpriority="high">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDITORIAL COMPOSITION ======================= -->
+  <div class="stage">
+
+    <!-- FRAME 07 — header ------------------------------------------- -->
+    <header class="hdr" data-px="ui">
+      <nav class="hdr__side hdr__side--l" data-in="hdr-l" aria-label="Primary">
+        <a href="#archive" class="link" data-scroll>Portfolio</a>
+        <a href="#looks" class="link" data-scroll>Profile</a>
+        <a href="#behind" class="link" data-scroll>Moods</a>
+      </nav>
+
+      <p class="hdr__vol" data-in="hdr-c">Fashion Model</p>
+
+      <nav class="hdr__side hdr__side--r" data-in="hdr-r" aria-label="Secondary">
+        <a href="#story" class="link" data-scroll>Details</a>
+        <a href="#finale" class="link" data-scroll>Contact</a>
+        <a href="#finale" class="link" data-scroll>Menu</a>
+        <button class="burger" type="button" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- FRAME 08 — behind the scenes -------------------------------- -->
+    <div class="bts" data-px="ui" data-in="bts">
+      <p class="bts__eyebrow">Selected work</p>
+      <a href="#archive" class="bts__link" data-scroll>
+        <span class="bts__label">View portfolio</span>
+        <span class="bts__rule" aria-hidden="true"></span>
+        <svg class="bts__arrow" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+          <path d="M1.4 12.6 12.6 1.4M4.2 1.4h8.4v8.4"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- FRAME 08 — volume / edition --------------------------------- -->
+    <div class="edn" data-px="ui" data-in="edn">
+      <p class="edn__l1">Based in Paris</p>
+      <p class="edn__l2">Available Worldwide</p>
+      <span class="edn__rule" aria-hidden="true"></span>
+    </div>
+
+    <!-- FRAME 08 — vertical Milan rail ------------------------------ -->
+    <div class="rail" data-px="ui" aria-hidden="true">
+      <div class="rail__in" data-in="rail">
+        <span class="rail__rule rail__rule--t"></span>
+        <span class="rail__label">Fashion Model — 2026</span>
+        <span class="rail__rule rail__rule--b"></span>
+      </div>
+    </div>
+
+    <!-- FRAME 04 — the title ---------------------------------------- -->
+    <h1 class="title" data-px="title">
+      <span class="title__in" data-in="title">
+        <img src="TITTLE.jpg" alt="ENIGMA" decoding="async" fetchpriority="high">
+      </span>
+    </h1>
+
+    <!-- FRAME 05 / 06 — supporting copy + date ----------------------- -->
+    <div class="copy" data-px="copy">
+      <p class="copy__body" data-in="copy">
+        A study in presence, movement and modern femininity — working
+        across editorial, beauty, campaign and runway with a distinct
+        visual perspective.
+      </p>
+      <p class="copy__date" data-in="date">EDITORIAL · BEAUTY · CAMPAIGN · RUNWAY</p>
+    </div>
+
+    <!-- FRAME 09 — section navigation -------------------------------- -->
+    <nav class="secnav" data-px="ui" data-in="secnav" aria-label="Sections">
+      <span class="secnav__track" aria-hidden="true"><i class="secnav__dot"></i></span>
+      <ol class="secnav__list">
+        <li><a href="#" aria-current="true">01</a></li>
+        <li><a href="#">02</a></li>
+        <li><a href="#">03</a></li>
+        <li><a href="#">04</a></li>
+        <li><a href="#">05</a></li>
+        <li><a href="#">06</a></li>
+      </ol>
+    </nav>
+
+    <!-- FRAME 08 — footer -------------------------------------------- -->
+    <footer class="foot" data-px="ui">
+      <p data-in="foot-l">Representation — Independent</p>
+      <p data-in="foot-c">Available for — editorials, campaigns, beauty and runway</p>
+      <p data-in="foot-r">Paris / Milan / London</p>
+    </footer>
+
+  </div><!-- /stage -->
+</section>
+
+<!-- ===================================================================
+     SECTION 02 — THE ARCHIVE ROOM
+     A rectangular volume of screens turning about an axis in front of the
+     camera. Geometry in space.css / space.js.
+     Clicking a screen emits enigma:select — the connection point for a
+     future Section 03. Nothing is invented for it here.
+     =================================================================== -->
+<section class="space" id="archive" aria-label="The portfolio">
+  <div class="space__wall" aria-hidden="true"></div>
+  <div class="space__scene">
+    <div class="space__room"><!-- screens built by space.js --></div>
+  </div>
+  <div class="space__ui">
+    <p class="space__eyebrow">The Portfolio</p>
+    <p class="space__count"><b>04</b> Categories</p>
+    <p class="space__hint">Editorial · Beauty · Campaign · Runway — scroll to travel</p>
+  </div>
+</section>
+
+
+<!-- ===================================================================
+     SECTION 03 — THE FLOATING PORTFOLIO
+     Screens ride a wide shallow ellipse reverse-fitted from
+     "Section 3 refrence.jpeg". Geometry in folio.css / folio.js.
+     =================================================================== -->
+<section class="folio" id="folio" aria-label="Selected work">
+  <!-- the section is tall so the scroll has something to push; the view
+       itself stays pinned, so what you see is one continuous room -->
+  <div class="folio__pin">
+    <div class="folio__wall"  aria-hidden="true"></div>
+    <div class="folio__scene">
+      <div class="folio__stage"><!-- screens built by folio.js --></div>
+    </div>
+    <div class="folio__floor" aria-hidden="true"></div>
+
+    <div class="folio__ui">
+      <p class="folio__eyebrow">Selected Work</p>
+      <div class="folio__step">
+        <button type="button" aria-label="Next work">&#8594;</button>
+        <button type="button" aria-label="Previous work">&#8592;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SECTION 04 — ONE LOOK. FOUR MOODS.
+     Four designers orbit the portrait on a tilted ring; the scroll turns
+     it. Geometry measured from "Section 4 refrence.jpg" — see looks.css
+     and looks.js. Node, mood and panel content builds from the MOODS
+     config at the top of looks.js.
+     =================================================================== -->
+<section class="looks" id="looks" aria-label="Model in focus">
+  <div class="looks__pin">
+    <div class="looks__wall" aria-hidden="true"></div>
+
+    <div class="looks__rail">
+      <p class="looks__num">04</p>
+      <h2 class="looks__title">Model<br>In Focus</h2>
+      <p class="looks__body">More than a face — defined by versatility,
+        presence and transformation.</p>
+      <a class="looks__link" href="#folio" data-scroll><span>View full profile</span><i>&#8599;</i></a>
+    </div>
+    <div class="looks__rule" aria-hidden="true"><i></i></div>
+
+    <div class="looks__scene">
+      <div class="looks__stage">
+        <div class="looks__echo" aria-hidden="true"></div>
+
+        <div class="looks__orbit" aria-hidden="true">
+          <i class="orb__line orb__line--in"></i>
+          <i class="orb__line orb__line--out"></i>
+          <i class="orb__arc"></i>
+          <i class="orb__tick"></i>
+        </div>
+
+        <div class="looks__med">
+          <i class="med__rim med__rim--3"></i>
+          <i class="med__rim med__rim--2"></i>
+          <i class="med__rim med__rim--1"></i>
+          <div class="med__face"><!-- moods built by looks.js --></div>
+          <i class="med__ring"></i>
+        </div>
+
+        <!-- nodes + information panels built by looks.js -->
+      </div>
+    </div>
+
+    <div class="looks__dots" aria-hidden="true">
+      <b>01</b><b>02</b><b>03</b><b>04</b>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SECTION 05 — BEHIND THE SCENES
+     Four backstage prints in one 3D studio; the scroll carries them
+     through the hand-off. Geometry measured from "Section 5 refrence.jpg"
+     — see behind.css / behind.js. Print content builds from the PRINTS
+     config at the top of behind.js.
+     =================================================================== -->
+<section class="behind" id="behind" aria-label="One look, four moods">
+  <div class="behind__pin">
+    <div class="behind__wall" aria-hidden="true"></div>
+
+    <div class="behind__rail">
+      <p class="behind__num">05</p>
+      <h2 class="behind__title">One Look.<br>Four Moods.</h2>
+      <p class="behind__body">The same model. Four different
+        expressions of character.</p>
+      <div class="behind__ctl">
+        <button type="button" aria-label="Previous print">&#8592;</button>
+        <button type="button" class="behind__hand" aria-label="Drag to explore">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11m0-5.5v-1a1.5 1.5 0 0 1 3 0V11m0-4.5a1.5 1.5 0 0 1 3 0V13m0-3a1.5 1.5 0 0 1 3 0v4.2c0 3.8-2.6 6.8-6.5 6.8h-1.2c-2 0-3.5-.7-4.6-2.2L4.6 15c-.6-.8-.5-1.9.3-2.5.7-.6 1.8-.5 2.4.2L8 14.2"/>
+          </svg>
+        </button>
+        <button type="button" aria-label="Next print">&#8594;</button>
+      </div>
+    </div>
+
+    <div class="behind__scene">
+      <div class="behind__stage">
+        <div class="behind__rig"><!-- prints built by behind.js --></div>
+      </div>
+    </div>
+
+    <div class="behind__foot">
+      <div class="behind__prog" aria-hidden="true">
+        <b>01</b><b>02</b><b>03</b><b>04</b><i></i>
+      </div>
+      <p class="behind__hint">Drag<br>to explore</p>
+      <div class="behind__harr" aria-hidden="true"><span>&#8592;</span><span>&#8594;</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SECTION 06 — BEHIND THE SCENES · THE STORY
+     The four-frame editorial row and the red PARIS destination panel,
+     measured from "section 6 refrence.jpg". The active frame is pulled
+     forward off the row; scroll hands the forward position 01 -> 04.
+     Frame content builds from the FRAMES config in story.js.
+     =================================================================== -->
+<section class="story" id="story" aria-label="Behind the scenes and model details">
+  <div class="story__pin">
+    <div class="story__wall" aria-hidden="true"></div>
+
+    <div class="story__rail">
+      <p class="story__num">06</p>
+      <h2 class="story__title">Behind<br>The Scenes</h2>
+      <p class="story__body">Beyond the final frame — preparation,
+        movement and the moments in between.</p>
+      <button type="button" class="story__go" aria-label="Next frame">&#8594;</button>
+    </div>
+
+    <div class="story__scene">
+      <div class="story__stage">
+        <div class="story__rig"><!-- frames built by story.js --></div>
+      </div>
+    </div>
+
+    <div class="story__cap">
+      <span class="story__capnum">01</span>
+      <span class="story__captxt">Preparation — the details begin here.</span>
+      <span class="story__line" aria-hidden="true"><i></i></span>
+    </div>
+
+    <aside class="story__paris" aria-label="Model details">
+      <div class="story__pimg" aria-hidden="true">
+        <img src="story/paris.jpg" alt=""
+             onerror="this.parentNode.style.display='none'" draggable="false">
+      </div>
+      <div class="story__pbody">
+        <p class="story__plabel">Model Details</p>
+        <p class="story__pcity">Details</p>
+
+        <!-- measurements: placeholders until the real card is supplied -->
+        <dl class="story__mgrid">
+          <div><dt>Height</dt><dd>&mdash;</dd></div>
+          <div><dt>Bust</dt><dd>&mdash;</dd></div>
+          <div><dt>Waist</dt><dd>&mdash;</dd></div>
+          <div><dt>Hips</dt><dd>&mdash;</dd></div>
+          <div><dt>Shoe</dt><dd>&mdash;</dd></div>
+          <div><dt>Hair</dt><dd>&mdash;</dd></div>
+          <div><dt>Eyes</dt><dd>&mdash;</dd></div>
+          <div><dt>Languages</dt><dd>&mdash;</dd></div>
+        </dl>
+
+        <p class="story__pdate">Based in Paris</p>
+        <p class="story__pvenue">Europe &middot; UK &middot; International</p>
+        <a class="story__ptix" href="#finale" data-scroll><span>Professional enquiries</span><i>&#8599;</i></a>
+      </div>
+      <div class="story__psoc">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.7 3H21l-7.3 8.3L22.2 21h-6.8l-5.3-6.2L4 21H.8l7.8-8.9L2 3h7l4.8 5.7L17.7 3zm-1.2 16h1.9L7.4 4.9H5.4L16.5 19z"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.2-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.4V21h3.1z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="5.5" width="19" height="13" rx="3.5"/><path d="M10.2 9.4l4.6 2.6-4.6 2.6V9.4z" fill="currentColor" stroke="none"/></svg></a>
+      </div>
+      <button type="button" class="story__play" aria-label="Play film">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.8l10.5 6.2L3 14.2V1.8z"/></svg>
+      </button>
+    </aside>
+  </div>
+</section>
+</main>
+
+<!-- ===================================================================
+     SECTION 07 — THE FINAL SCENE
+     The closing shot, not a footer. The supplied ENIGMA typography asset
+     rises through the same red-ink filter as Section 01; the supplied
+     atmosphere plate breathes behind it. Timeline in fin.css / fin.js.
+     =================================================================== -->
+<footer class="fin" id="finale" aria-label="ENIGMA — representation">
+  <div class="fin__pin">
+
+    <div class="fin__atmo" aria-hidden="true">
+      <img src="BACKGROUNF%20IMG.jpg" alt="" decoding="async" draggable="false">
+    </div>
+
+    <div class="fin__markwrap" aria-hidden="true">
+      <div class="fin__mark">
+        <img src="TITTLE.jpg" alt="" decoding="async" draggable="false">
+      </div>
+    </div>
+
+    <div class="fin__fg">
+      <div class="fin__slate">
+        <p class="fin__eyebrow">Representation</p>
+        <p class="fin__line">Let&rsquo;s create something distinctive.
+          For castings, campaigns, editorials and professional
+          collaborations.</p>
+      </div>
+
+      <a class="fin__call" href="#story" data-magnet data-enquiry="">
+        <span>Make an Enquiry</span><i>&#8594;</i>
+      </a>
+
+      <nav class="fin__nav" aria-label="Final navigation">
+        <a href="#archive" data-to="#archive" data-magnet>Portfolio</a>
+        <a href="#folio"   data-to="#folio"   data-magnet>Selected Work</a>
+        <a href="#looks"   data-to="#looks"   data-magnet>Profile</a>
+        <a href="#behind"  data-to="#behind"  data-magnet>Four Moods</a>
+        <a href="#story"   data-to="#story"   data-magnet>Behind the Scenes</a>
+        <a href="#story"   data-to="#story"   data-magnet>Details</a>
+      </nav>
+
+      <div class="fin__soc">
+        <a href="#">Instagram</a>
+        <a href="#">X</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+
+      <a class="fin__top" href="#hero" data-magnet>
+        <span>Back to top</span><i>&#8593;</i>
+      </a>
+
+      <div class="fin__base">
+        <span>ENIGMA &mdash; Fashion Model</span>
+        <span>Paris &middot; Milan &middot; London &middot; Worldwide</span>
+        <span>Representation &mdash; Independent</span>
+        <span><b>&copy; 2026 ENIGMA</b></span>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+<script src="hero.js"></script>
+<script src="space.js"></script>
+<script src="folio.js"></script>
+<script src="looks.js"></script>
+<script src="behind.js"></script>
+<script src="story.js"></script>
+<script src="fin.js"></script>
+</body>
+</html>

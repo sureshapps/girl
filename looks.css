@@ -1,0 +1,529 @@
+/* ============================================================================
+   ENIGMA — SECTION 04 · ONE LOOK. FOUR MOODS.
+   ---------------------------------------------------------------------------
+   Composition reverse-measured from "Section 4 refrence.jpg" (1536 x 1024):
+
+     portrait medallion centre (687, 453)  ->  stage anchor 44.7% / 44.2%
+     orbit radius 230, nodes seated top / right / bottom / left
+     info panel x 1043->1512, y 267->713   ->  +356..+825 / -186..+260 of stage
+     left rail x 105, hairline rule x 42 with red dot at y 530
+
+   The orbit is a real tilted plane (rotateX) inside a perspective scene: the
+   nodes ride it in JS-computed 3D, so the seat at the top is also the point
+   nearest the camera. The active node is not "highlighted" — it arrives.
+
+   The scroll is the only motor. State machine (JS flips classes, CSS moves):
+     ring travels -> node seats -> pause -> panel floats in -> the new mood
+     enters the medallion from the LEFT while the old one sinks out right.
+
+   3D INTEGRITY: nothing between the scene and a panel is faded — reveal and
+   depth live on the leaves, so preserve-3d never collapses.
+   ========================================================================== */
+
+.looks{
+  /* 1 reference pixel of the 1536 x 1024 design frame */
+  --ku: clamp(0.40px, min(0.06510417vw, 0.09765625vh), 2.0px);
+  --red: #ce010f;
+
+  position:relative;
+  width:100%;
+  /* tall: the scroll needs distance to drive 01 -> 04. The view is pinned. */
+  height:370vh;
+  background:#000;
+  touch-action:pan-y;
+  -webkit-user-select:none; user-select:none;
+}
+.looks__pin{
+  position:sticky;
+  top:0;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+/* ---------------------------------------------------------------------------
+   ROOM — the same near-black tonal separation as the other sections
+   --------------------------------------------------------------------------*/
+.looks__wall{
+  position:absolute;
+  left:-10%; top:-10%; width:120%; height:120%;
+  background:
+    radial-gradient(44% 46% at 45% 44%, #0c0a0b 0%, #060506 46%, #000 78%),
+    radial-gradient(26% 30% at 40% 58%, rgba(120,6,14,.13) 0%, rgba(0,0,0,0) 70%);
+  z-index:0;
+  opacity:0;
+  transition:opacity .6s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   LEFT RAIL — 04 · title · text · link  (screen-anchored, as the reference)
+   --------------------------------------------------------------------------*/
+.looks__rail{
+  position:absolute;
+  left:calc(105 * var(--ku));
+  top:calc(196 * var(--ku));
+  z-index:6;
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color:#fff;
+  opacity:0;
+  transform:translateY(calc(10 * var(--ku)));
+  transition:opacity .55s cubic-bezier(.22,.61,.36,1),
+             transform .55s cubic-bezier(.22,.61,.36,1);
+}
+.looks__num{
+  display:flex; align-items:center; gap:.5em;
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(44 * var(--ku));
+  letter-spacing:.01em;
+}
+.looks__num::after{
+  content:""; flex:0 0 calc(38 * var(--ku));
+  height:1px; background:rgba(255,255,255,.65);
+}
+.looks__title{
+  margin-top:calc(52 * var(--ku));
+  font-stretch:81%;
+  font-weight:620;
+  font-size:calc(56 * var(--ku));
+  line-height:1.06;
+  letter-spacing:.004em;
+  text-transform:uppercase;
+  max-width:calc(370 * var(--ku));
+}
+.looks__body{
+  margin-top:calc(88 * var(--ku));
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(17.5 * var(--ku));
+  line-height:1.55;
+  color:rgba(255,255,255,.74);
+  max-width:calc(215 * var(--ku));
+}
+.looks__link{
+  display:inline-flex; align-items:center; gap:calc(14 * var(--ku));
+  margin-top:calc(64 * var(--ku));
+  padding-bottom:calc(10 * var(--ku));
+  border-bottom:1px solid rgba(255,255,255,.32);
+  font-stretch:81%;
+  font-weight:420;
+  font-size:calc(14.5 * var(--ku));
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:#fff;
+  text-decoration:none;
+  transition:border-color .4s ease;
+}
+.looks__link:hover{ border-color:rgba(206,1,15,.85); }
+.looks__link i{ color:var(--red); font-style:normal; font-size:calc(15 * var(--ku)); }
+
+/* the hairline rule far left, red pip riding it */
+.looks__rule{
+  position:absolute;
+  left:calc(42 * var(--ku));
+  top:calc(200 * var(--ku));
+  height:calc(480 * var(--ku));
+  width:1px;
+  background:rgba(255,255,255,.20);
+  z-index:6;
+  opacity:0;
+  transition:opacity .55s ease;
+}
+.looks__rule i{
+  position:absolute;
+  left:calc(-2.5 * var(--ku));
+  top:var(--pip,68%);
+  width:calc(6 * var(--ku)); height:calc(6 * var(--ku));
+  border-radius:50%;
+  background:var(--red);
+  box-shadow:0 0 calc(9 * var(--ku)) rgba(206,1,15,.8);
+  transition:top .5s cubic-bezier(.22,.61,.36,1);
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE — perspective camera aimed at the medallion
+   --------------------------------------------------------------------------*/
+.looks__scene{
+  position:absolute; inset:0;
+  perspective:calc(1400 * var(--ku));
+  perspective-origin:calc(44.7% + var(--px,0%)) calc(44.2% + var(--py,0%));
+  z-index:2;
+  opacity:0;
+  transition:opacity .65s ease;
+}
+.looks.is-lit .looks__scene,
+.looks.is-lit .looks__wall,
+.looks.is-lit .looks__rail,
+.looks.is-lit .looks__rule,
+.looks.is-lit .looks__dots{ opacity:1; transform:none; }
+.looks.is-lit .looks__wall{ opacity:.95; }
+
+.looks__stage{
+  position:absolute;
+  left:44.7%; top:44.2%;
+  width:0; height:0;
+  transform-style:preserve-3d;
+}
+
+/* ---------------------------------------------------------------------------
+   ORBIT — a tilted plane the nodes ride; drawn lines live in the plane
+   --------------------------------------------------------------------------*/
+.looks__orbit{
+  position:absolute; left:0; top:0;
+  width:0; height:0;
+  transform-style:preserve-3d;
+  transform:rotateX(calc(14deg + var(--oy,0deg))) rotateY(var(--ox,0deg));
+}
+.orb__line{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+}
+.orb__line--in{
+  left:calc(-206 * var(--ku)); top:calc(-206 * var(--ku));
+  width:calc(412 * var(--ku)); height:calc(412 * var(--ku));
+  border-color:rgba(255,255,255,.10);
+}
+.orb__line--out{
+  left:calc(-231 * var(--ku)); top:calc(-231 * var(--ku));
+  width:calc(462 * var(--ku)); height:calc(462 * var(--ku));
+}
+/* the red arc segment that travels with the ring */
+.orb__arc{
+  position:absolute;
+  left:calc(-231 * var(--ku)); top:calc(-231 * var(--ku));
+  width:calc(462 * var(--ku)); height:calc(462 * var(--ku));
+  border-radius:50%;
+  border:1px solid transparent;
+  border-top-color:rgba(206,1,15,.65);
+  transform:rotate(calc(var(--spin,0) * 1deg + 38deg));
+}
+/* the active seat: a fixed station at the top of the orbit */
+.orb__tick{
+  position:absolute;
+  left:-0.5px; top:calc(-268 * var(--ku));
+  width:1px; height:calc(58 * var(--ku));
+  background:linear-gradient(to bottom, rgba(206,1,15,0), rgba(206,1,15,.75));
+}
+
+/* ---------------------------------------------------------------------------
+   NODES — placed by JS in real 3D; labels stay upright
+   --------------------------------------------------------------------------*/
+.lkn{
+  position:absolute;
+  /* a REAL box centred on the node origin: a 0x0 leaf inside a 3D rendering
+     context gets its children rasterised into a zero-sized texture — dots
+     clip to slivers and labels vanish. 480u contains dot, halo and both
+     label positions.                                                      */
+  left:calc(-240 * var(--ku)); top:calc(-240 * var(--ku));
+  width:calc(480 * var(--ku)); height:calc(480 * var(--ku));
+  pointer-events:none;
+}
+.lkn .lkn__dot, .lkn .lkn__lab{ opacity:var(--no,1); }
+.lkn__dot{
+  position:absolute;
+  left:calc(50% - 4.5 * var(--ku)); top:calc(50% - 4.5 * var(--ku));
+  width:calc(9 * var(--ku)); height:calc(9 * var(--ku));
+  border-radius:50%;
+  background:#e8e6e6;
+  transition:background .4s ease, box-shadow .4s ease, transform .4s ease,
+             opacity .3s ease;
+}
+.lkn__halo{
+  position:absolute;
+  left:calc(50% - 24 * var(--ku)); top:calc(50% - 24 * var(--ku));
+  width:calc(48 * var(--ku)); height:calc(48 * var(--ku));
+  border-radius:50%;
+  border:1px solid rgba(206,1,15,.85);
+  opacity:0;
+  transform:scale(.55);
+  transition:opacity .45s cubic-bezier(.22,.61,.36,1),
+             transform .45s cubic-bezier(.22,.61,.36,1);
+}
+.lkn.is-on .lkn__dot{
+  background:var(--red);
+  transform:scale(1.35);
+  box-shadow:0 0 calc(14 * var(--ku)) rgba(206,1,15,.75);
+}
+.lkn.is-on .lkn__halo{ opacity:1; transform:scale(1); }
+
+.lkn__lab{
+  position:absolute;
+  left:calc(50% + 22 * var(--ku)); top:calc(50% - 16 * var(--ku));
+  width:calc(170 * var(--ku));
+  font-family:"Archivo",Arial,sans-serif;
+  font-stretch:81%;
+  font-weight:460;
+  font-size:calc(16.5 * var(--ku));
+  line-height:1.3;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.88);
+  white-space:nowrap;
+  transition:color .4s ease;
+}
+.lkn.lab-left .lkn__lab{
+  left:calc(50% - 192 * var(--ku));
+  text-align:right;
+}
+.lkn.is-on .lkn__lab{ color:#fff; }
+
+/* ---------------------------------------------------------------------------
+   MEDALLION — a physical disc: rim layers behind, clipped face in front
+   --------------------------------------------------------------------------*/
+.looks__med{
+  position:absolute; left:0; top:0;
+  width:0; height:0;
+  transform-style:preserve-3d;
+  transform:rotateY(calc(6deg + var(--sway,0deg))) rotateX(3.5deg);
+}
+.med__rim{
+  position:absolute;
+  border-radius:50%;
+  left:calc(-166 * var(--ku)); top:calc(-166 * var(--ku));
+  width:calc(332 * var(--ku)); height:calc(332 * var(--ku));
+}
+.med__rim--1{ transform:translateZ(calc(-5 * var(--ku)));  background:#141214; }
+.med__rim--2{ transform:translateZ(calc(-10 * var(--ku))); background:#0c0b0c; }
+.med__rim--3{ transform:translateZ(calc(-15 * var(--ku))); background:#070607;
+              box-shadow:0 calc(26 * var(--ku)) calc(60 * var(--ku)) rgba(0,0,0,.75); }
+
+.med__face{
+  position:absolute;
+  left:calc(-165 * var(--ku)); top:calc(-165 * var(--ku));
+  width:calc(330 * var(--ku)); height:calc(330 * var(--ku));
+  border-radius:50%;
+  overflow:hidden;
+  background:#0a090a;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.13);
+}
+/* the four moods stacked inside the clipped face */
+.look{
+  position:absolute; inset:0;
+  opacity:0;
+  transform:perspective(1000px) translateX(-58%) rotateY(16deg) scale(.86);
+  filter:brightness(.55);
+  transition:transform .75s cubic-bezier(.22,.61,.36,1),
+             opacity   .75s cubic-bezier(.22,.61,.36,1),
+             filter    .75s cubic-bezier(.22,.61,.36,1);
+}
+.look.is-front{
+  opacity:1;
+  transform:perspective(1000px) translateX(0) rotateY(0deg) scale(1);
+  filter:brightness(1);
+}
+.look.is-gone{
+  opacity:0;
+  transform:perspective(1000px) translateX(46%) rotateY(-14deg) scale(.9);
+  filter:brightness(.4);
+}
+.look img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:50% 24%;
+  -webkit-user-drag:none;
+}
+/* the four grades of the one look */
+.look.g-noir      img{ filter:grayscale(1) contrast(1.1) brightness(1.14); }
+.look.g-crimson   img{ filter:grayscale(1) brightness(.9); }
+.look.g-eclipse   img{ filter:grayscale(.35) brightness(.62) contrast(1.3); }
+.look.g-signature img{ filter:none; }
+.look__wash{ position:absolute; inset:0; pointer-events:none; }
+.look.g-crimson .look__wash{
+  background:linear-gradient(155deg, rgba(190,8,18,.8) 0%, rgba(90,3,9,.55) 55%, rgba(20,1,3,.6) 100%);
+  mix-blend-mode:screen;
+}
+
+/* the faint outer ring hugging the face, as drawn in the reference */
+.med__ring{
+  position:absolute;
+  left:calc(-190 * var(--ku)); top:calc(-190 * var(--ku));
+  width:calc(380 * var(--ku)); height:calc(380 * var(--ku));
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.08);
+  transform:translateZ(calc(6 * var(--ku)));
+}
+
+/* the dark echo panel deeper in the room — the "behind" layer */
+.looks__echo{
+  position:absolute; left:0; top:0;
+  width:calc(390 * var(--ku)); height:calc(390 * var(--ku));
+  margin-left:calc(-195 * var(--ku)); margin-top:calc(-195 * var(--ku));
+  border-radius:50%;
+  transform:translate3d(calc(-84 * var(--ku)), calc(-40 * var(--ku)), calc(-190 * var(--ku)));
+  background:radial-gradient(closest-side, #0d0b0c 0%, #070607 62%, rgba(0,0,0,0) 100%);
+  box-shadow:inset 0 0 0 1px rgba(206,1,15,.10);
+}
+
+/* ---------------------------------------------------------------------------
+   INFO PANEL — black surface, thin red border, portrait attached at right.
+   Built once per designer; .is-in floats it into place.
+   --------------------------------------------------------------------------*/
+.lkp{
+  position:absolute; left:0; top:0;
+  width:calc(469 * var(--ku));
+  height:calc(446 * var(--ku));
+  margin-left:calc(-234.5 * var(--ku));
+  margin-top:calc(-223 * var(--ku));
+  transform-style:preserve-3d;
+  transform:translate3d(calc(622 * var(--ku)), calc(37 * var(--ku)), calc(-90 * var(--ku)))
+            rotateY(-12deg);
+  opacity:0;
+  transition:transform .5s cubic-bezier(.22,.61,.36,1),
+             opacity .5s cubic-bezier(.22,.61,.36,1);
+  pointer-events:none;
+}
+.lkp.is-in{
+  transform:translate3d(calc(566 * var(--ku)), calc(37 * var(--ku)), calc(10 * var(--ku)))
+            rotateY(-6deg);
+  opacity:1;
+  pointer-events:auto;
+}
+.lkp__slab{
+  position:absolute; inset:0;
+  transform:translateZ(calc(-4 * var(--ku)));
+  background:#070708;
+  border-radius:calc(15 * var(--ku));
+}
+.lkp__card{
+  position:absolute; inset:0;
+  display:grid;
+  grid-template-columns:calc(200 * var(--ku)) 1fr;
+  border:1px solid rgba(206,1,15,.75);
+  border-radius:calc(14 * var(--ku));
+  background:#050505;
+  overflow:hidden;
+}
+.lkp__txt{
+  padding:calc(38 * var(--ku)) calc(26 * var(--ku)) calc(30 * var(--ku));
+  font-family:"Archivo",Arial,sans-serif;
+  color:#fff;
+  display:flex; flex-direction:column;
+}
+.lkp__name{
+  font-stretch:81%;
+  font-weight:560;
+  font-size:calc(19.5 * var(--ku));
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  color:var(--red);
+}
+.lkp__row{ margin-top:calc(30 * var(--ku)); }
+.lkp__key{
+  font-stretch:100%;
+  font-weight:400;
+  font-size:calc(11.5 * var(--ku));
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.44);
+}
+.lkp__val{
+  margin-top:calc(8 * var(--ku));
+  font-stretch:100%;
+  font-weight:340;
+  font-size:calc(16.5 * var(--ku));
+  line-height:1.45;
+  color:rgba(255,255,255,.94);
+}
+.lkp__go{
+  margin-top:auto;
+  display:inline-flex; align-items:center; gap:calc(12 * var(--ku));
+  font-stretch:81%;
+  font-weight:440;
+  font-size:calc(13.5 * var(--ku));
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#fff;
+  text-decoration:none;
+}
+.lkp__go i{ color:var(--red); font-style:normal; }
+.lkp__img{
+  position:relative;
+  overflow:hidden;
+}
+.lkp__img img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:52% 26%;
+  filter:grayscale(1) brightness(.82) contrast(1.05);
+  -webkit-user-drag:none;
+}
+.lkp__img::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(200deg, rgba(190,8,18,.75) 0%, rgba(90,3,9,.4) 45%, rgba(10,0,1,.6) 100%);
+  mix-blend-mode:screen;
+}
+
+/* ---------------------------------------------------------------------------
+   PROGRESS — 01 · 02 · 03 · 04 at the foot of the pin
+   --------------------------------------------------------------------------*/
+.looks__dots{
+  position:absolute;
+  left:50%; bottom:calc(52 * var(--ku));
+  transform:translateX(-50%);
+  display:flex; gap:calc(44 * var(--ku));
+  z-index:6;
+  font-family:"Archivo",Arial,sans-serif;
+  opacity:0;
+  transition:opacity .55s ease .2s;
+}
+.looks__dots b{
+  display:flex; flex-direction:column; align-items:center; gap:calc(9 * var(--ku));
+  font-stretch:100%;
+  font-weight:400;
+  font-size:calc(13.5 * var(--ku));
+  letter-spacing:.12em;
+  color:rgba(255,255,255,.38);
+  transition:color .4s ease;
+}
+.looks__dots b::after{
+  content:"";
+  width:calc(20 * var(--ku)); height:1px;
+  background:rgba(255,255,255,.22);
+  transition:background .4s ease, width .4s ease;
+}
+.looks[data-active="0"] .looks__dots b:nth-child(1),
+.looks[data-active="1"] .looks__dots b:nth-child(2),
+.looks[data-active="2"] .looks__dots b:nth-child(3),
+.looks[data-active="3"] .looks__dots b:nth-child(4){ color:#fff; }
+.looks[data-active="0"] .looks__dots b:nth-child(1)::after,
+.looks[data-active="1"] .looks__dots b:nth-child(2)::after,
+.looks[data-active="2"] .looks__dots b:nth-child(3)::after,
+.looks[data-active="3"] .looks__dots b:nth-child(4)::after{
+  background:var(--red); width:calc(30 * var(--ku));
+}
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — every state lands instantly at its scroll position
+   --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion:reduce){
+  .looks *, .looks *::after, .looks *::before{ transition:none !important; }
+  .looks__scene,.looks__wall,.looks__rail,.looks__rule,.looks__dots{ opacity:1; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------------------------*/
+@media (max-width:1024px){
+  .looks{ --ku:clamp(0.40px, min(0.08vw, 0.114vh), 2.0px); }
+}
+@media (max-aspect-ratio:3/4), (max-width:700px){
+  .looks{ --ku:clamp(0.34px, min(0.155vw, 0.086vh), 2.0px); }
+  .looks__rail{ left:calc(60 * var(--ku)); top:calc(90 * var(--ku)); }
+  .looks__body{ display:none; }
+  .looks__rule{ display:none; }
+  .looks__scene{ perspective-origin:50% 52%; }
+  .looks__stage{ left:50%; top:46%; }
+  .lkp{
+    margin-left:calc(-234.5 * var(--ku));
+    transform:translate3d(calc(40 * var(--ku)), calc(330 * var(--ku)), calc(-80 * var(--ku))) rotateY(-9deg);
+  }
+  .lkp.is-in{
+    transform:translate3d(0, calc(300 * var(--ku)), calc(24 * var(--ku))) rotateY(0deg);
+  }
+}

@@ -1,0 +1,551 @@
+/* ============================================================================
+   ENIGMA — HERO
+   Composition reverse-measured from "ACTUAL REFRENCE.jpg" (1536 x 1024 frame).
+   Every geometric value below is expressed in reference pixels and multiplied
+   by --u, so the whole composition scales as one system.
+   No new artwork is generated; all imagery is the supplied asset set.
+   ========================================================================== */
+
+/* ---------- typefaces (self-hosted, latin subset, variable weight) ---------
+   Archivo + Archivo Narrow — SIL Open Font License 1.1, Omnibus-Type.
+   Self-hosted so the entrance never waits on a third-party request and the
+   composition is identical offline.
+   -------------------------------------------------------------------------*/
+@font-face{
+  font-family:"Archivo";
+  src:url("fonts/archivo-var.woff2") format("woff2");
+  font-weight:100 900;                 /* full weight axis   */
+  font-stretch:62% 125%;               /* full width  axis   */
+  font-style:normal;
+  font-display:block;
+}
+
+/* ---------- reset ---------- */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{ background:#000; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+img{ display:block; max-width:100%; }
+button{ font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+ol{ list-style:none; margin:0; padding:0; }
+p{ margin:0; }
+h1{ margin:0; font-weight:inherit; font-size:inherit; }
+.u-hidden{ position:absolute; width:0; height:0; overflow:hidden; }
+
+/* ---------- design tokens ---------- */
+:root{
+  /* 1 reference pixel. min() keeps the composition "contained": it scales to
+     whichever axis is tighter, so the vertical rhythm never breaks. */
+  --u: clamp(0.44px, min(0.0651042vw, 0.09765625vh), 2.2px);
+
+  --gut: calc(43 * var(--u));          /* measured left/right gutter        */
+  --red: #ce010f;                      /* ENIGMA ink, sampled from reference */
+  --white: #fff;
+
+  /* one family, two axes. 81% width reproduces Archivo Narrow exactly
+     (measured 1750.2px vs 1747.0px on the header string), which is why every
+     size and tracking value below is unchanged.                            */
+  --ff-n: "Archivo", "Arial Narrow", Arial, system-ui, sans-serif;
+  --ff-a: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --wdth-n: 81%;
+
+  /* cinematic easings — no overshoot, no elasticity */
+  --e-atmos: cubic-bezier(.33,0,.15,1);   /* colour emerging from black     */
+  --e-photo: cubic-bezier(.16,1,.3,1);    /* the print developing           */
+  --e-lift : cubic-bezier(.19,1,.22,1);   /* the title being lifted         */
+  --e-fine : cubic-bezier(.22,.61,.36,1); /* editorial text                 */
+  --e-settle:cubic-bezier(.4,0,.2,1);     /* micro settle                   */
+}
+
+/* ============================================================================
+   HERO SHELL
+   ========================================================================== */
+.hero{
+  position:relative;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  background:#000;
+  isolation:isolate;
+}
+
+/* full-bleed image layers ---------------------------------------------------*/
+/* --px-x / --px-y are written by the pointer-parallax loop after the intro.  */
+.layer{
+  position:absolute; inset:0;
+  transform:translate3d(var(--px-x,0px),var(--px-y,0px),0);
+}
+.layer__in{ position:absolute; inset:0; will-change:transform,opacity; }
+.layer img{ width:100%; height:100%; object-fit:cover; }
+
+.layer--bg{ z-index:1; }
+.layer--bg img{ object-position:center center; transform:scale(1.02); }
+
+.layer--girl{ z-index:2; }
+.girl__frame{
+  position:absolute; inset:0;
+  /* the supplied background breathes through the portrait's shadows,
+     matching the lifted blacks of the reference composite            */
+  opacity:.96;
+}
+.girl__img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:50% 42%;
+  /* measured placement: photo drawn at 102.5% with top-left (-49,-59) in the
+     1536x1024 reference frame (template-match correlation 0.983).            */
+  transform:translate(-1.94%,-4.51%) scale(1.025);
+}
+.girl__img--soft{
+  filter:blur(calc(16 * var(--u)));
+  transform:translate(-1.94%,-4.51%) scale(1.055);
+  opacity:1;
+}
+.girl__img--sharp{ opacity:0; }
+
+
+/* ============================================================================
+   STAGE — 1024u tall, vertically centred, full hero width.
+   Vertical positions come from the stage; horizontal gutters from the edges.
+   ========================================================================== */
+.stage{
+  position:absolute;
+  left:0; right:0; top:50%;
+  height:calc(1024 * var(--u));
+  transform:translateY(-50%) translate3d(var(--px-x,0px),var(--px-y,0px),0);
+  z-index:3;
+  pointer-events:none;
+}
+.stage > *{ pointer-events:auto; }
+
+/* shared type defaults ------------------------------------------------------*/
+.hdr,.bts,.edn,.rail,.copy,.secnav,.foot{
+  font-family:var(--ff-n);
+  font-stretch:var(--wdth-n);
+  color:var(--white);
+  line-height:1;
+}
+/* the elements that use the normal width of the same family */
+.hdr__vol,.copy__body,.copy__date,.secnav__list{ font-stretch:100%; }
+
+/* ---------------------------------------------------------------------------
+   FRAME 07 — HEADER   (cap band y 41 → 53, baseline 53.5)
+   --------------------------------------------------------------------------*/
+.hdr{
+  position:absolute;
+  left:var(--gut); right:var(--gut);
+  top:calc(40.0 * var(--u));
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:baseline;
+}
+.hdr__side--l{ justify-self:start;  }
+.hdr__vol    { justify-self:center; }
+.hdr__side--r{ justify-self:end;    }
+.hdr__side{
+  display:flex;
+  align-items:baseline;
+  gap:calc(48.5 * var(--u));          /* solved: left group ink spans 290u  */
+  font-weight:235;
+  font-size:calc(17.75 * var(--u));
+  letter-spacing:.030em;
+  text-transform:uppercase;
+}
+.hdr__vol{
+  font-family:var(--ff-a);
+  font-weight:700;
+  font-size:calc(17.75 * var(--u));
+  letter-spacing:.058em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.hdr__side--r{ gap:calc(50.6 * var(--u)); }
+
+.link{ position:relative; white-space:nowrap; }
+.link::after{
+  content:""; position:absolute;
+  left:0; right:0; bottom:calc(-6 * var(--u));
+  height:1px; background:currentColor;
+  transform:scaleX(0); transform-origin:left center;
+  transition:transform .5s var(--e-fine);
+}
+.link:hover::after,.link:focus-visible::after{ transform:scaleX(1); }
+
+/* burger — 3 rules, 2u thick, 6u pitch, 24u wide (measured) */
+.burger{
+  display:block;
+  width:calc(24 * var(--u));
+  height:calc(14 * var(--u));
+  position:relative;
+  align-self:center;
+  margin-left:calc(-12.4 * var(--u)); /* measured 43u from MENU, not 53u    */
+}
+.burger span{
+  position:absolute; left:0;
+  width:100%; height:calc(2 * var(--u));
+  background:var(--white);
+  transition:transform .45s var(--e-fine);
+}
+.burger span:nth-child(1){ top:0; }
+.burger span:nth-child(2){ top:calc(6 * var(--u)); }
+.burger span:nth-child(3){ top:calc(12 * var(--u)); }
+.burger:hover span:nth-child(1){ transform:translateX(calc(3 * var(--u))); }
+.burger:hover span:nth-child(3){ transform:translateX(calc(-3 * var(--u))); }
+
+/* ---------------------------------------------------------------------------
+   FRAME 08 — BEHIND THE SCENES   (eyebrow cap-top 210, label cap-top 236)
+   --------------------------------------------------------------------------*/
+.bts{
+  position:absolute;
+  left:var(--gut);
+  top:calc(207.78 * var(--u));
+}
+.bts__eyebrow{
+  font-weight:450;
+  font-size:calc(13.38 * var(--u));
+  letter-spacing:.064em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.92);
+}
+.bts__link{ display:block; margin-top:calc(11.65 * var(--u)); }
+.bts__label{
+  display:block;
+  font-weight:400;
+  font-size:calc(19.2 * var(--u));
+  letter-spacing:.0335em;
+  text-transform:uppercase;
+}
+.bts__rule{
+  display:block;
+  height:1px;
+  margin-top:calc(12.99 * var(--u));
+  background:var(--red);
+  transform-origin:left center;
+  transition:transform .6s var(--e-fine);
+}
+.bts__link:hover .bts__rule{ transform:scaleX(1.06); }
+.bts__arrow{
+  display:block;
+  width:calc(14 * var(--u));
+  height:calc(14 * var(--u));
+  margin-top:calc(18 * var(--u));
+  overflow:visible;
+  fill:none;
+  stroke:var(--red);
+  stroke-width:1.6;
+  stroke-linecap:square;
+  transition:transform .5s var(--e-fine);
+}
+.bts__link:hover .bts__arrow{
+  transform:translate(calc(2.5 * var(--u)),calc(-2.5 * var(--u)));
+}
+
+/* ---------------------------------------------------------------------------
+   FRAME 08 — VOLUME / EDITION   (right column, cap-tops 206 and 236)
+   --------------------------------------------------------------------------*/
+.edn{
+  position:absolute;
+  right:var(--gut);
+  top:calc(202.81 * var(--u));
+  text-align:right;
+}
+.edn__l1{
+  font-weight:350;
+  font-size:calc(19.2 * var(--u));
+  letter-spacing:.0525em;
+  text-transform:uppercase;
+}
+.edn__l2{
+  font-weight:350;
+  font-size:calc(17.75 * var(--u));
+  letter-spacing:.0435em;
+  text-transform:uppercase;
+  margin-top:calc(13.04 * var(--u));
+}
+.edn__rule{
+  display:block;
+  width:calc(47 * var(--u));
+  height:1px;
+  margin-top:calc(19.2 * var(--u));
+  margin-left:auto;
+  background:var(--red);
+}
+
+/* ---------------------------------------------------------------------------
+   FRAME 08 — VERTICAL MILAN RAIL   (axis x 46; rule 389→553, label 571→771,
+   rule 787→836)
+   --------------------------------------------------------------------------*/
+.rail{
+  position:absolute;
+  left:calc(45.75 * var(--u));
+  top:calc(388.5 * var(--u));
+  width:0;
+  height:calc(447.5 * var(--u));
+}
+.rail__in{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  height:100%;
+  will-change:transform,opacity;
+}
+.rail__rule{
+  width:1px;
+  background:rgba(255,255,255,.60);
+  transform-origin:top center;
+}
+.rail__rule--t{ height:calc(166 * var(--u)); margin-bottom:calc(16.5 * var(--u)); }
+.rail__rule--b{ height:calc(47  * var(--u)); margin-top:calc(17 * var(--u));  }
+.rail__label{
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  position:relative;
+  left:calc(1.2 * var(--u));   /* vertical text sits off-axis inside its box */
+  height:calc(201 * var(--u));
+  font-weight:250;
+  font-size:calc(14.84 * var(--u));
+  letter-spacing:.120em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   FRAME 04 — THE TITLE
+   The supplied TITTLE.jpg placed undistorted, matched to the reference title's
+   horizontal span (glyphs 195 → 1351) with the glyph baseline at y 722.
+   Adjust --title-w alone to re-scale the whole title.
+   --------------------------------------------------------------------------*/
+.title{
+  --title-w: calc(1174.62 * var(--u));   /* image width (glyph span 1157u)   */
+  position:absolute;
+  left:50%;
+  top:calc(404.5 * var(--u));
+  width:var(--title-w);
+  transform:translateX(-50%) translate3d(var(--px-x,0px),var(--px-y,0px),0);
+  z-index:2;
+}
+.title__in{ display:block; will-change:transform,opacity; }
+.title img{
+  width:100%;
+  height:auto;
+  /* red → alpha separation of the supplied asset (see filter in index.html) */
+  filter:url(#enigma-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   FRAMES 05 / 06 — SUPPORTING COPY + DATE
+   --------------------------------------------------------------------------*/
+.copy{
+  position:absolute;
+  left:50%;
+  top:calc(745.06 * var(--u));
+  width:calc(528 * var(--u));   /* holds the reference's 3 line breaks */
+  transform:translateX(-50%);
+  text-align:center;
+}
+.copy__body{
+  font-family:var(--ff-a);
+  font-weight:245;
+  font-size:calc(14.84 * var(--u));
+  line-height:calc(24.5 * var(--u));
+  letter-spacing:.072em;
+  color:var(--white);
+  text-wrap:pretty;
+}
+.copy__date{
+  font-family:var(--ff-a);
+  font-weight:900;                     /* Archivo axis max — the reference
+                                          date is heavier than Archivo goes */
+  font-stretch:95%;                     /* narrow the glyphs, not the spacing,
+                                          so the em dash keeps its air      */
+  font-size:calc(20.65 * var(--u));
+  letter-spacing:.002em;
+  word-spacing:.145em;                  /* keeps air around the em dash */
+  color:var(--red);
+  margin-top:calc(26.57 * var(--u));
+  white-space:nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   FRAME 09 — SECTION NAVIGATION   (track x 1512.5, y 375→618; dot at y 402)
+   --------------------------------------------------------------------------*/
+.secnav{
+  position:absolute;
+  right:calc(23.5 * var(--u));
+  top:calc(375 * var(--u));
+  height:calc(243 * var(--u));
+}
+.secnav__track{
+  position:absolute;
+  right:0; top:0;
+  width:1px; height:100%;
+  background:rgba(255,255,255,.50);
+  transform-origin:top center;
+}
+.secnav__dot{
+  position:absolute;
+  right:calc(-3.5 * var(--u));
+  top:calc(23 * var(--u));
+  width:calc(8 * var(--u));
+  height:calc(8 * var(--u));
+  border-radius:50%;
+  background:var(--red);
+}
+.secnav__list{
+  position:absolute;
+  right:calc(18 * var(--u));
+  top:calc(2.07 * var(--u));
+  text-align:right;
+  font-family:var(--ff-a);
+  font-weight:300;
+  font-size:calc(20.65 * var(--u));
+  letter-spacing:.039em;
+}
+.secnav__list li{ height:calc(45 * var(--u)); }
+.secnav__list li:first-child{ height:calc(40 * var(--u)); }
+.secnav__list a{
+  display:block;
+  color:rgba(255,255,255,.9);
+  transition:color .4s var(--e-fine);
+}
+.secnav__list a:hover{ color:var(--white); }
+.secnav__list a[aria-current]{ color:var(--red); }
+.secnav__list a[aria-current]::after{
+  content:"";
+  display:block;
+  width:calc(24 * var(--u));
+  height:calc(2 * var(--u));
+  margin-top:calc(2.28 * var(--u));
+  margin-left:auto;
+  background:var(--red);
+  transform-origin:right center;
+}
+
+/* ---------------------------------------------------------------------------
+   FRAME 08 — FOOTER   (cap-top 961)
+   --------------------------------------------------------------------------*/
+.foot{
+  position:absolute;
+  left:var(--gut); right:var(--gut);
+  top:calc(958.30 * var(--u));
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:baseline;
+  font-weight:335;
+  font-size:calc(16.29 * var(--u));
+  letter-spacing:.095em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.foot p:nth-child(1){ justify-self:start;  }
+.foot p:nth-child(2){ justify-self:center; }
+.foot p:nth-child(3){ justify-self:end;    }
+
+/* ============================================================================
+   ENTRANCE SEQUENCE — initial (pre-roll) state
+   Every element is parked here before hero.js starts the timeline, so the
+   composition is never seen assembling itself out of order.
+   ========================================================================== */
+[data-state="preload"] .hero,
+[data-state="intro"]   .hero{ background:#000; }
+
+[data-state="preload"] [data-in],
+[data-state="intro"]   [data-in]{ will-change:transform,opacity; }
+
+/* FRAME 00 — pure darkness */
+[data-state="preload"] [data-in="bg"]{ opacity:0; }
+[data-state="preload"] [data-in="girl"]{ opacity:0; }
+[data-state="preload"] [data-in="title"]{ opacity:0; }
+[data-state="preload"] .hdr [data-in],
+[data-state="preload"] [data-in="bts"],
+[data-state="preload"] [data-in="edn"],
+[data-state="preload"] [data-in="rail"],
+[data-state="preload"] [data-in="copy"],
+[data-state="preload"] [data-in="date"],
+[data-state="preload"] [data-in="secnav"],
+[data-state="preload"] .foot [data-in]{ opacity:0; }
+
+/* the rail rules and nav track draw in, so park them collapsed */
+[data-state="preload"] .rail__rule,
+[data-state="preload"] .secnav__track{ transform:scaleY(0); }
+[data-state="preload"] .secnav__dot{ opacity:0; }
+[data-state="preload"] .secnav__list a[aria-current]::after{ transform:scaleX(0); }
+[data-state="preload"] .bts__rule{ transform:scaleX(0); }
+
+/* ---------- reduced motion: no sequence, just the finished composition -----*/
+@media (prefers-reduced-motion:reduce){
+  [data-state] [data-in],
+  [data-state] .rail__rule,
+  [data-state] .secnav__track,
+  [data-state] .secnav__dot,
+  [data-state] .secnav__list a[aria-current]::after,
+  [data-state] .bts__rule{
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+  }
+  .girl__img--soft{ display:none; }
+  .girl__img--sharp{ opacity:1; }
+  .link::after,.bts__rule,.bts__arrow,.burger span,.secnav__list a{ transition:none; }
+}
+
+/* ============================================================================
+   RESPONSIVE — portrait / narrow.
+   Same assets, same hierarchy, re-flowed so nothing collides.
+   ========================================================================== */
+/* Only genuinely portrait or genuinely narrow viewports get the stack. The
+   contained --u system already handles short desktop windows correctly, and
+   the old 5/4 threshold was catching those too.                             */
+@media (max-aspect-ratio:3/4), (max-width:700px){
+  :root{ --u: clamp(0.30px, 0.13020833vw, 1.1px); --gut: calc(43 * var(--u)); }
+
+  .stage{ top:0; height:100%; transform:none; }
+
+  /* vertical anchors are percentages here, so the stack cannot collide
+     however short the viewport gets                                        */
+  .hdr{ top:3.5%; }
+  .hdr__side--l .link:nth-child(n+2),
+  .hdr__side--r .link{ display:none; }
+  .hdr__vol{ font-size:calc(16 * var(--u)); }
+  .burger{ margin-left:0; }
+
+  .edn{ top:12%; }
+  .rail{ display:none; }
+
+  /* capped so the title's height tracks the viewport, not just its width */
+  .title{
+    --title-w:min(calc(100% - (2 * var(--gut))), 46vh);
+    left:50%; top:33%;
+    transform:translateX(-50%);
+  }
+
+  .copy{
+    top:52%; bottom:auto;
+    width:calc(100% - (2 * var(--gut)));
+  }
+  .copy__body{ font-size:calc(17 * var(--u)); line-height:calc(28 * var(--u)); }
+  .copy__date{ font-size:calc(23 * var(--u)); margin-top:calc(22 * var(--u)); }
+
+  .bts{ top:auto; bottom:13%; }
+
+  .secnav{ top:auto; bottom:13%; height:calc(180 * var(--u)); }
+  .secnav__list li{ height:calc(33 * var(--u)); }
+  .secnav__list li:first-child{ height:calc(30 * var(--u)); }
+  .secnav__list{ font-size:calc(16 * var(--u)); }
+  .secnav__dot{ top:calc(16 * var(--u)); }
+
+  .foot{
+    top:auto; bottom:3.5%;
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:calc(14 * var(--u));
+    text-align:center;
+    font-size:calc(15 * var(--u));
+    white-space:normal;
+  }
+  .foot p:nth-child(1),.foot p:nth-child(2),.foot p:nth-child(3){ justify-self:center; }
+}
+

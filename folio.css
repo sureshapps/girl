@@ -1,0 +1,324 @@
+/* ============================================================================
+   ENIGMA — SECTION 03 · THE FLOATING PORTFOLIO
+   ---------------------------------------------------------------------------
+   Geometry reverse-fitted from "Section 3 refrence.jpeg" (1536 x 1024 frame).
+
+   The screens ride a WIDE SHALLOW ELLIPSE — semi-axes A 1561 x B 546, so
+   B/A = 0.35. That ratio is the whole composition: the front of the ellipse
+   is long and almost flat, which is why the middle screens sit nearly
+   face-on, while the ends turn away hard, which is why the wings are steeply
+   raked. A circle cannot do both.
+
+       camera (origin)  ....  ellipse centre at z = -1002  ....
+                     the near arc sweeps past at z = -456
+
+   Fitted against the reference, every panel lands within a few px:
+       cx 136/431/766/1052/1282/1441  ->  135/437/757/1053/1287/1439
+   and the yaw that falls out of the tangent, -8deg -> +27deg, is the
+   reference's own rotation gradient. Nothing here is hardcoded per panel.
+
+   3D INTEGRITY: opacity/filter collapses transform-style to flat, so nothing
+   between .folio__stage and .fp is ever faded — depth, reveal and exit all
+   fold into each panel's own --o.
+   ========================================================================== */
+
+.folio{
+  /* 1 reference pixel of the 1536 x 1024 design frame */
+  --fu: clamp(0.40px, min(0.06510417vw, 0.09765625vh), 2.0px);
+  --persp: calc(1412 * var(--fu));
+
+  --red: #ce010f;
+
+  position:relative;
+  width:100%;
+  /* tall, so the scroll has distance to push the room through. The view is
+     pinned below, so the visitor still sees one continuous space.        */
+  height:340vh;
+  background:#000;
+  touch-action:pan-y;
+  -webkit-user-select:none; user-select:none;
+}
+.folio__pin{
+  position:sticky;
+  top:0;
+  height:100vh;
+  height:100dvh;
+  min-height:520px;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+/* ---------------------------------------------------------------------------
+   THE ROOM — no walls, only tonal separation, exactly as Sections 01/02
+   --------------------------------------------------------------------------*/
+.folio__wall{
+  position:absolute;
+  left:-10%; top:-10%; width:120%; height:120%;
+  background:
+    radial-gradient(46% 44% at 39% 46%, #0d0b0c 0%, #070607 45%, #000 76%),
+    radial-gradient(30% 34% at 30% 52%, rgba(120,6,14,.16) 0%, rgba(0,0,0,0) 70%);
+  transform:translate3d(var(--wall-x,0px),var(--wall-y,0px),0);
+  z-index:0;
+  opacity:var(--enter,0);
+}
+
+/* the barely-there floor the screens stand on. Almost invisible — it exists
+   only so the panels read as physical objects, per the reference.          */
+.folio__floor{
+  position:absolute;
+  left:0; right:0; bottom:0; height:26%;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.020) 0%, rgba(0,0,0,0) 42%),
+    radial-gradient(60% 100% at 40% 0%, rgba(150,10,18,.055) 0%, rgba(0,0,0,0) 70%);
+  z-index:1;
+  pointer-events:none;
+  opacity:var(--enter,0);
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE + STAGE
+   --------------------------------------------------------------------------*/
+.folio__scene{
+  position:absolute; inset:0;
+  perspective:var(--persp);
+  /* the ellipse axis projects at 37.2% of the frame, not the middle — this is
+     the reference's off-centre camera                                       */
+  perspective-origin:var(--cam-x,37.2%) var(--cam-y,50%);
+  z-index:2;
+  opacity:var(--enter,0);
+}
+.folio__stage{
+  position:absolute;
+  left:37.2%; top:50%;
+  width:0; height:0;
+  transform-style:preserve-3d;
+}
+
+/* ---------------------------------------------------------------------------
+   PANEL — a thin physical screen. JS writes --tx --ty --tz --yaw --tilt.
+   --------------------------------------------------------------------------*/
+.fp{
+  position:absolute;
+  left:0; top:0;
+  width:calc(var(--w) * var(--fu));
+  height:calc(var(--h) * var(--fu));
+  margin-left:calc(var(--w) * var(--fu) / -2);
+  margin-top:calc(var(--h) * var(--fu) / -2);
+  transform-style:preserve-3d;
+  transform:
+    translate3d(var(--tx,0px), var(--ty,0px), var(--tz,0px))
+    rotateY(var(--yaw,0deg))
+    rotateX(var(--tilt,0deg));
+  opacity:var(--o,1);
+  will-change:transform;
+}
+
+/* thickness: a slab set back by the panel's depth, so a raked screen shows a
+   real side edge instead of reading as a pasted cut-out                     */
+.fp__slab{
+  position:absolute; inset:0;
+  transform:translateZ(calc(var(--th,3) * var(--fu) * -1));
+  background:#070708;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+/* the soft darkness a near screen throws behind it — a gradient, not a blur */
+.fp__cast{
+  position:absolute;
+  left:-36%; right:-36%; top:-16%; bottom:-34%;
+  transform:translateZ(calc(var(--th,3) * var(--fu) * -11));
+  background:radial-gradient(52% 54% at 50% 56%,
+             rgba(0,0,0,.9) 0%, rgba(0,0,0,.5) 46%, rgba(0,0,0,0) 74%);
+  pointer-events:none;
+}
+
+.fp__face{
+  position:absolute; inset:0;
+  overflow:hidden;
+  background:#0a090a;
+  /* a rim, not a glow */
+  box-shadow:0 0 0 1px rgba(255,255,255,.085),
+             inset 0 1px 0 0 rgba(255,255,255,.05);
+  transition:transform .55s cubic-bezier(.22,.61,.36,1),
+             box-shadow .45s cubic-bezier(.22,.61,.36,1);
+}
+.fp__face img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:var(--op,50% 38%);
+  display:block;
+  -webkit-user-drag:none;
+}
+/* depth veil — what makes a far screen sink into the room rather than fade  */
+.fp__veil{
+  position:absolute; inset:0;
+  background:#000;
+  opacity:var(--v,.4);
+  pointer-events:none;
+  transition:opacity .45s cubic-bezier(.22,.61,.36,1);
+}
+/* PLACEHOLDER TREATMENT — every wash below is dropped the moment a real
+   photograph loads, so your own imagery is never tinted or covered.        */
+.fp[data-placeholder] .fp__wash{ position:absolute; inset:0; pointer-events:none; }
+.fp[data-accent="red"][data-placeholder] .fp__wash{
+  background:linear-gradient(152deg,
+    rgba(178,8,17,1) 0%, rgba(122,5,12,1) 52%, rgba(38,2,5,1) 100%);
+}
+.fp[data-accent="dark"][data-placeholder] .fp__wash{
+  background:linear-gradient(152deg, rgba(20,20,22,1) 0%, rgba(7,7,8,1) 100%);
+}
+.fp[data-accent="none"][data-placeholder] .fp__wash{
+  background:linear-gradient(152deg, rgba(26,26,29,1) 0%, rgba(10,10,11,1) 100%);
+}
+.fp[data-tier="back"][data-placeholder] .fp__wash{
+  background:linear-gradient(160deg, rgba(30,30,34,1) 0%, rgba(9,9,10,1) 100%);
+}
+
+/* the red hairline the reference carries on its accent screens */
+.fp[data-accent="red"] .fp__face{
+  box-shadow:0 0 0 1px rgba(206,1,15,.55),
+             inset 0 1px 0 0 rgba(255,255,255,.06);
+}
+
+/* ---------------------------------------------------------------------------
+   TYPE — printed onto the screen, so it rakes and recedes with it
+   --------------------------------------------------------------------------*/
+.fp__type{
+  position:absolute;
+  left:9%; right:9%; top:9%;
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color:#fff;
+  pointer-events:none;
+}
+.fp__num{
+  display:flex; align-items:center; gap:.55em;
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(26 * var(--fu));
+  letter-spacing:.02em;
+  opacity:.94;
+}
+.fp__num::after{
+  content:""; flex:0 0 calc(26 * var(--fu));
+  height:1px; background:rgba(255,255,255,.6);
+}
+.fp__title{
+  margin-top:calc(24 * var(--fu));
+  max-width:40%;                 /* the reference breaks the title to 3 lines */
+  font-stretch:81%;
+  font-weight:600;
+  font-size:calc(42 * var(--fu));
+  line-height:1.02;
+  letter-spacing:.005em;
+  text-transform:uppercase;
+}
+.fp__body{
+  margin-top:calc(18 * var(--fu));
+  font-stretch:100%;
+  font-weight:300;
+  font-size:calc(17 * var(--fu));
+  line-height:1.5;
+  letter-spacing:.012em;
+  color:rgba(255,255,255,.66);
+}
+/* the CTA sits on the panel's own bottom edge */
+.fp__cta{
+  position:absolute;
+  left:9%; right:9%; bottom:7%;
+  display:flex; align-items:center; gap:calc(18 * var(--fu));
+  font-family:"Archivo",Arial,sans-serif;
+  font-stretch:81%;
+  font-weight:400;
+  font-size:calc(19 * var(--fu));
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.9);
+  pointer-events:none;
+}
+.fp__mark{
+  width:calc(46 * var(--fu)); height:calc(46 * var(--fu));
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:50%;
+  display:grid; place-items:center;
+  font-size:calc(19 * var(--fu));
+  letter-spacing:0;
+}
+.fp[data-tier="back"] .fp__type,
+.fp[data-tier="back"] .fp__cta{ display:none; }
+
+/* ---------------------------------------------------------------------------
+   HOVER — the screen steps out of the room. Nothing glows.
+   --------------------------------------------------------------------------*/
+.fp.is-live{ cursor:pointer; }
+.fp.is-live:hover .fp__face{
+  transform:translateZ(calc(13 * var(--fu))) scale(1.012);
+  box-shadow:0 0 0 1px rgba(255,255,255,.2),
+             inset 0 1px 0 0 rgba(255,255,255,.08);
+}
+.fp.is-live:hover .fp__veil{ opacity:calc(var(--v) * .34); }
+.folio.is-hovering .fp.is-live:not(:hover){ opacity:calc(var(--o) * .72); }
+
+/* ---------------------------------------------------------------------------
+   CHROME — the two markers the reference carries, nothing else
+   --------------------------------------------------------------------------*/
+.folio__ui{
+  position:absolute; inset:0;
+  z-index:6;
+  pointer-events:none;
+  opacity:0;
+  font-family:"Archivo",Arial,sans-serif;
+  font-stretch:81%;
+  color:#fff;
+}
+.folio__eyebrow{
+  position:absolute;
+  left:calc(44 * var(--fu)); top:calc(38 * var(--fu));
+  font-size:calc(14 * var(--fu));
+  font-weight:400;
+  letter-spacing:.095em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+.folio__step{
+  position:absolute;
+  right:calc(20 * var(--fu));
+  top:50%;
+  display:grid;
+  gap:calc(18 * var(--fu));
+  transform:translateY(-50%);
+  pointer-events:auto;
+}
+.folio__step button{
+  width:calc(44 * var(--fu)); height:calc(44 * var(--fu));
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:50%;
+  color:rgba(255,255,255,.8);
+  font-size:calc(20 * var(--fu));
+  line-height:1;
+  display:grid; place-items:center;
+  transition:border-color .4s ease, color .4s ease, background .4s ease;
+}
+.folio__step button:hover{
+  border-color:rgba(206,1,15,.9);
+  color:#fff;
+  background:rgba(206,1,15,.14);
+}
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — the installation holds still, fully lit, still explorable
+   --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion:reduce){
+  .folio__scene,.folio__ui,.folio__wall,.folio__floor{ opacity:1; }
+  .fp__face,.fp__veil{ transition:none; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE — the installation stays an installation, it only tightens
+   --------------------------------------------------------------------------*/
+@media (max-width:1024px){
+  .folio{ --fu:clamp(0.40px, min(0.08vw, 0.114vh), 2.0px); }
+}
+@media (max-aspect-ratio:3/4), (max-width:700px){
+  .folio{ --fu:clamp(0.38px, min(0.15vw, 0.086vh), 2.0px); }
+  .folio__step{ right:calc(24 * var(--fu)); }
+}
